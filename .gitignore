@@ -1,0 +1,16 @@
+# 機密檔案 - 絕對不能上傳到 git
+.env
+
+# Python 暫存
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# 資料檔與執行紀錄（太大或無需版控）
+data/
+logs/
+
+# 系統檔
+.DS_Store
