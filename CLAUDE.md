@@ -72,7 +72,18 @@ tw-stock-agent/
   - [x] 策略差異化觸發門檻：布林突破 ≥ 2%，超賣反彈 ≥ 1.5%
   - [x] 股票名稱查詢（TaiwanStockInfo，快取於 data/stock_info.csv）
   - [x] Telegram 訊息格式升級（含股票名稱、漲幅說明、YoY）
-- [x] 第六階段：crontab 排程自動化（完成）
+- [x] 第六階段：crontab 排程自動化（完成，2026-06 重新設定）
+  - [x] 四支腳本全部排程，週一到週五自動執行
+  - [x] 各腳本 log 輸出至 logs/ 資料夾
+  - [x] pmset 設定 07:55 自動喚醒（`sudo pmset repeat wakeorpoweron MTWRF 07:55:00`）
+  - [x] 排程工具：Python subprocess 寫入（set_crontab.py），避免 heredoc 問題
+
+| 時間 | 腳本 | Log |
+|------|------|-----|
+| 08:00 | scan.py | logs/scan.log |
+| */10 09–13 | monitor.py | logs/monitor.log |
+| 14:30 | stock_cache.py | logs/stock_cache.log |
+| 22:00 | broker_cache.py | logs/broker_cache.log |
 
 🎉 全部完成！系統每個交易日自動運行。
 
