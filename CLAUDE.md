@@ -16,6 +16,7 @@
 ## 資料來源
 
 - **FinMind API**：台股日成交資料（dataset: TaiwanStockPrice）
+- **yfinance**：美股指數（^DJI, ^IXIC, ^SOX）、台股大盤（^TWII）、台幣匯率（TWD=X）
 - 免費版限制：每小時約 600 次請求
 - 全市場一天資料 = 一次 API 呼叫即可取得
 
@@ -86,10 +87,18 @@ tw-stock-agent/
   - [x] 各腳本 log 輸出至 logs/ 資料夾
   - [x] pmset 設定 07:55 自動喚醒（`sudo pmset repeat wakeorpoweron MTWRF 07:55:00`）
   - [x] 排程工具：Python subprocess 寫入（set_crontab.py），避免 heredoc 問題
+- [x] 第七階段：morning_brief.py 每日早報（2026-06 完成）
+  - [x] 美股三大指數昨收（^DJI, ^IXIC, ^SOX）via yfinance
+  - [x] 台幣匯率（TWD=X）via yfinance
+  - [x] 台股大盤點位（^TWII）via yfinance；成交量從本地 prices CSV 一般股加總
+  - [x] 三大法人昨日買賣超（從本地 brokers CSV 讀取，單位億元）
+  - [x] scan.py 加入 Telegram 發送（--dry 跳過）
+  - [x] crontab 更新：morning_brief 08:05，scan.py 改為 08:20
 
 | 時間 | 腳本 | Log |
 |------|------|-----|
-| 08:00 | scan.py | logs/scan.log |
+| 08:05 | morning_brief.py | logs/morning_brief.log |
+| 08:20 | scan.py | logs/scan.log |
 | */10 09–13 | monitor.py | logs/monitor.log |
 | 14:30 | stock_cache.py | logs/stock_cache.log |
 | 22:00 | broker_cache.py | logs/broker_cache.log |

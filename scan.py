@@ -2,8 +2,8 @@
 scan.py
 用途：盤前選股，三層過濾架構（基本面 → 量能 → 技術訊號）
 用法：
-  python3 scan.py       ← 用最新資料選股
-  python3 scan.py --dry ← 只印結果不發 Telegram（目前 Telegram 整合尚未啟用）
+  python3 scan.py       ← 用最新資料選股，結果發送 Telegram
+  python3 scan.py --dry ← 只印結果，不發 Telegram
 """
 
 import os
@@ -14,6 +14,7 @@ import requests
 import pandas as pd
 from datetime import date
 from dotenv import load_dotenv
+from notify import send
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
@@ -428,6 +429,11 @@ def main():
     print("\n" + "─" * 60)
     print(txt_content)
     print("─" * 60)
+
+    # ── 發送 Telegram（--dry 跳過）────────────────────────
+    if "--dry" not in sys.argv:
+        ok = send(txt_content)
+        print("✅ 選股清單已發送 Telegram" if ok else "❌ Telegram 發送失敗")
 
 
 if __name__ == "__main__":
