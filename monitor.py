@@ -127,29 +127,46 @@ def load_watchlist() -> list:
 # ── 抓即時價格 ────────────────────────────────────────────
 
 def fetch_today_prices(stock_ids: list) -> dict:
-    """抓今日即時價格（FinMind 約 15 分鐘延遲）。"""
+    """抓盤中即時成交價（TaiwanStockPriceTick，盤中即時，付費帳號）。
+    每檔獨立查詢，取最新一筆 deal_price 為現價，累加 volume 為今日成交量。
+    """
     today  = date.today().isoformat()
     result = {}
 
-    r = requests.get(API_URL, params={
-        "dataset":    "TaiwanStockPrice",
-        "stock_id":   ",".join(stock_ids),
-        "start_date": today,
-        "end_date":   today,
-        "token":      TOKEN,
-    }, timeout=60)
+    for sid in stock_ids:
+        try:
+            r = requests.get(API_URL, params={
+                "dataset":    "TaiwanStockPriceTick",
+                "stock_id":   sid,
+                "start_date": today,
+                "end_date":   today,
+                "data_id":    sid,
+                "token":      TOKEN,
+            }, timeout=30)
+        except requests.RequestException as e:
+            print(f"⚠️  {sid} 請求失敗：{e}")
+            continue
 
-    if r.status_code != 200:
-        print(f"⚠️  API 呼叫失敗：HTTP {r.status_code}")
-        return result
+        if r.status_code != 200:
+            print(f"⚠️  {sid} HTTP {r.status_code}")
+            continue
 
-    data = r.json()
-    if data.get("msg") != "success" or not data.get("data"):
-        print("⚠️  今日資料尚未更新（可能市場未開盤或 API 延遲）")
-        return result
+        payload = r.json()
+        if payload.get("msg") != "success" or not payload.get("data"):
+            continue
 
-    for row in data["data"]:
-        result[row["stock_id"]] = row
+        ticks     = payload["data"]
+        latest    = ticks[-1]
+        total_vol = sum(float(t.get("volume", 0)) for t in ticks)
+
+        result[sid] = {
+            "close":          float(latest["deal_price"]),
+            "Trading_Volume": total_vol,
+            "tick_time":      latest.get("Time", ""),
+        }
+
+    if not result:
+        print("⚠️  今日 Tick 資料尚未更新（可能市場未開盤）")
 
     return result
 

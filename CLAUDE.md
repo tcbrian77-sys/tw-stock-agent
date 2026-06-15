@@ -72,6 +72,9 @@ tw-stock-agent/
   - [x] 策略差異化觸發門檻：布林突破 ≥ 2%，超賣反彈 ≥ 1.5%
   - [x] 股票名稱查詢（TaiwanStockInfo，快取於 data/stock_info.csv）
   - [x] Telegram 訊息格式升級（含股票名稱、漲幅說明、YoY）
+  - [x] 即時價格改用 TaiwanStockPriceTick（付費帳號，盤中 tick 資料）
+    - 每檔獨立查詢（data_id=stock_id），取最新一筆 deal_price 為現價
+    - TaiwanStockPrice 僅有收盤資料，盤中無法使用
 - [x] 第六階段：crontab 排程自動化（完成，2026-06 重新設定）
   - [x] 四支腳本全部排程，週一到週五自動執行
   - [x] 各腳本 log 輸出至 logs/ 資料夾
@@ -102,8 +105,9 @@ tw-stock-agent/
 
 ### 第二層：成交量前 50
 
-- 從第一層通過的股票中，取最新交易日成交量（股數）前 50 大
+- 從第一層通過的股票中，取最新交易日**成交金額**（Trading_money）前 50 大
 - 直接讀本地 `data/prices/` CSV，不打 API
+- 改用金額排名（非股數），使大型股如台積電可進入候選池
 
 ### 第三層：技術訊號
 
