@@ -23,6 +23,7 @@ BASE_DIR        = os.path.dirname(__file__)
 WATCHLIST_PATH  = os.path.join(BASE_DIR, "watchlist_conditions.json")
 ALERTED_PATH    = os.path.join(BASE_DIR, "alerted.json")
 STOCK_INFO_PATH = os.path.join(BASE_DIR, "data", "stock_info.csv")
+PRICES_DIR      = os.path.join(BASE_DIR, "data", "prices")
 API_URL         = "https://api.finmindtrade.com/api/v4/data"
 TW_TZ           = ZoneInfo("Asia/Taipei")
 
@@ -31,6 +32,49 @@ TRIGGER_PCT = {
     "布林突破": 2.0,
     "超賣反彈": 1.5,
 }
+
+# 各策略的出場參數
+EXIT_RULES = {
+    "布林突破": {
+        "stop_loss_pct":   5.0,
+        "take_profit_pct": 8.0,
+        "force_days":      5,
+        "two_stage":       True,
+    },
+    "超賣反彈": {
+        "stop_loss_pct":   4.0,
+        "take_profit_pct": 6.0,
+        "force_days":      3,
+        "two_stage":       False,
+    },
+}
+
+
+# ── 近 5 日均量（本地 CSV）────────────────────────────────
+
+def get_5d_avg_volume(stock_id: str) -> int:
+    """從本地 prices CSV 讀近 5 個交易日均量，回傳張數（股數 ÷ 1000）。"""
+    try:
+        files = sorted(
+            f for f in os.listdir(PRICES_DIR)
+            if f.startswith("prices_") and f.endswith(".csv")
+        )[-5:]
+    except FileNotFoundError:
+        return 0
+
+    vols = []
+    for fname in files:
+        try:
+            df = pd.read_csv(os.path.join(PRICES_DIR, fname), dtype={"stock_id": str})
+            row = df[df["stock_id"] == stock_id]
+            if not row.empty:
+                vols.append(float(row.iloc[0]["Trading_Volume"]))
+        except Exception:
+            continue
+
+    if not vols:
+        return 0
+    return int(sum(vols) / len(vols) / 1000)
 
 
 # ── 時間判斷 ──────────────────────────────────────────────
@@ -194,15 +238,16 @@ def check_trigger(signal: dict, price_data: dict):
 
     if pct >= threshold:
         return {
-            "stock_id":      sid,
-            "strategy":      strategy,
-            "scan_close":    scan_close,
-            "current_close": current_close,
-            "pct":           round(pct, 2),
-            "vol_zhang":     int(current_vol // 1000),
-            "rsi":           signal.get("rsi"),
-            "yoy":           signal.get("yoy"),
-            "threshold":     threshold,
+            "stock_id":        sid,
+            "strategy":        strategy,
+            "scan_close":      scan_close,
+            "current_close":   current_close,
+            "pct":             round(pct, 2),
+            "vol_zhang":       int(current_vol // 1000),
+            "vol_5d_avg_zhang": get_5d_avg_volume(sid),
+            "rsi":             signal.get("rsi"),
+            "yoy":             signal.get("yoy"),
+            "threshold":       threshold,
         }
     return None
 
@@ -213,14 +258,39 @@ def build_message(t: dict, name: str) -> str:
     sid      = t["stock_id"]
     strategy = t["strategy"]
     yoy      = t.get("yoy")
+    price    = t["current_close"]
+    vol_avg  = t.get("vol_5d_avg_zhang", 0)
+
+    rules    = EXIT_RULES.get(strategy, EXIT_RULES["布林突破"])
+    sl_pct   = rules["stop_loss_pct"]
+    tp_pct   = rules["take_profit_pct"]
+    days     = rules["force_days"]
+    sl_price = round(price * (1 - sl_pct / 100), 1)
+    tp_price = round(price * (1 + tp_pct / 100), 1)
+
+    yoy_str = f"  ✓ YoY {yoy:+.1f}%" if yoy is not None else ""
 
     lines = [
         f"🔔 {sid} {name}【{strategy}】",
-        f"現價 {t['current_close']}  量 {t['vol_zhang']:,} 張",
-        f"✓ 漲幅 +{t['pct']}%（≥{t['threshold']}% 觸發，昨收 {t['scan_close']}）",
+        f"現價 {price}  量 {t['vol_zhang']:,} 張",
+        f"✓ 漲幅 +{t['pct']}%{yoy_str}",
+        "",
+        f"📌 建議停損：{sl_price}元（-{sl_pct:.0f}%）",
     ]
-    if yoy is not None:
-        lines.append(f"✓ YoY {yoy:+.1f}%")
+
+    if rules["two_stage"]:
+        lines.append(f"🎯 停利①：{tp_price}元（+{tp_pct:.0f}%，達到後建議減半）")
+        lines.append(f"🎯 停利②：跌破5日均線時建議全出")
+        lines.append(f"⏰ 強制出場：{days}個交易日內未續漲")
+    else:
+        lines.append(f"🎯 建議停利：{tp_price}元（+{tp_pct:.0f}%，建議全出）")
+        lines.append(f"⏰ 強制出場：{days}個交易日內無反彈")
+
+    lines += [
+        f"⚠️ 近5日均量：{vol_avg:,}張",
+        "",
+        "⚡ 以上為參考訊號，請自行判斷進出場",
+    ]
 
     return "\n".join(lines)
 
