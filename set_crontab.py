@@ -15,6 +15,9 @@ crontab_content = (
     "# 補收盤股價：週一到週五 14:30\n"
     "30 14 * * 1-5 cd /Users/brian/tw-stock-agent && /usr/bin/python3 stock_cache.py >> /Users/brian/tw-stock-agent/logs/stock_cache.log 2>&1\n"
     "\n"
+    "# 晚間選股：週一到週五 20:00\n"
+    "0 20 * * 1-5 cd /Users/brian/tw-stock-agent && /usr/bin/python3 evening_scan.py >> /Users/brian/tw-stock-agent/logs/evening_scan.log 2>&1\n"
+    "\n"
     "# 補籌碼資料：週一到週五 22:00\n"
     "0 22 * * 1-5 cd /Users/brian/tw-stock-agent && /usr/bin/python3 broker_cache.py >> /Users/brian/tw-stock-agent/logs/broker_cache.log 2>&1\n"
 )

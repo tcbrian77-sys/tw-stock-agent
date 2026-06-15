@@ -95,12 +95,25 @@ tw-stock-agent/
   - [x] scan.py 加入 Telegram 發送（--dry 跳過）
   - [x] crontab 更新：morning_brief 08:05，scan.py 改為 08:20
 
+- [x] 第八階段：evening_scan.py 晚間選股（2026-06 完成）
+  - [x] 篩選池：昨日成交金額前50 ∩ 股數前50 的交集（一般股 4 位數字代碼）
+  - [x] 四條件評分（各 25 分，資料缺失時等比換算為 100）：
+    - 條件一：最近 3 期 YoY 加速（25=全程加速，15=部分加速，0=持平/減速）
+    - 條件二：最新月營收 vs 歷史新高（≥100%=25，95-99%=15，90-94%=5，<90%=0）
+    - 條件三：毛利率 vs 去年同季（↑>1pp=25，持平±1pp=10，↓=0）—— TaiwanStockFinancialStatements
+    - 條件四：PE 本益比（<15=25，15-20=15，20-25=5，≥25或虧損=0）—— TaiwanStockPER
+  - [x] 快取：月營收用現有 fundamental_filter_YYYYMM.csv；
+          PER → data/stock_per_YYYYMM.csv；財報 → data/financial_statements_YYYYMM.csv
+  - [x] 輸出：總分最高 5 檔，以排名 emoji 格式發送 Telegram
+  - [x] crontab 新增 20:00 evening_scan.py
+
 | 時間 | 腳本 | Log |
 |------|------|-----|
 | 08:05 | morning_brief.py | logs/morning_brief.log |
 | 08:20 | scan.py | logs/scan.log |
 | */10 09–13 | monitor.py | logs/monitor.log |
 | 14:30 | stock_cache.py | logs/stock_cache.log |
+| 20:00 | evening_scan.py | logs/evening_scan.log |
 | 22:00 | broker_cache.py | logs/broker_cache.log |
 
 🎉 全部完成！系統每個交易日自動運行。
