@@ -1,0 +1,965 @@
+{
+  "date": "2026-06-12",
+  "signals": [
+    {
+      "stock_id": "1260",
+      "strategy": "超賣反彈",
+      "close": 23.45,
+      "vol_ratio": 0.5,
+      "rsi": 34.3,
+      "pct_change": 0.64
+    },
+    {
+      "stock_id": "1343",
+      "strategy": "超賣反彈",
+      "close": 19.7,
+      "vol_ratio": 1.4,
+      "rsi": 40.0,
+      "pct_change": 1.03
+    },
+    {
+      "stock_id": "1463",
+      "strategy": "超賣反彈",
+      "close": 17.8,
+      "vol_ratio": 1.0,
+      "rsi": 52.6,
+      "pct_change": 0.85
+    },
+    {
+      "stock_id": "1468",
+      "strategy": "超賣反彈",
+      "close": 11.9,
+      "vol_ratio": 1.0,
+      "rsi": 41.7,
+      "pct_change": 2.59
+    },
+    {
+      "stock_id": "1569",
+      "strategy": "超賣反彈",
+      "close": 48.55,
+      "vol_ratio": 0.5,
+      "rsi": 35.5,
+      "pct_change": 2.1
+    },
+    {
+      "stock_id": "1586",
+      "strategy": "超賣反彈",
+      "close": 21.4,
+      "vol_ratio": 1.1,
+      "rsi": 34.0,
+      "pct_change": 0.94
+    },
+    {
+      "stock_id": "1702",
+      "strategy": "超賣反彈",
+      "close": 31.55,
+      "vol_ratio": 0.9,
+      "rsi": 35.8,
+      "pct_change": 0.64
+    },
+    {
+      "stock_id": "1712",
+      "strategy": "超賣反彈",
+      "close": 39.75,
+      "vol_ratio": 0.5,
+      "rsi": 55.7,
+      "pct_change": 0.76
+    },
+    {
+      "stock_id": "1736",
+      "strategy": "超賣反彈",
+      "close": 116.0,
+      "vol_ratio": 1.0,
+      "rsi": 44.2,
+      "pct_change": 2.65
+    },
+    {
+      "stock_id": "1784",
+      "strategy": "超賣反彈",
+      "close": 66.4,
+      "vol_ratio": 0.6,
+      "rsi": 37.6,
+      "pct_change": 0.45
+    },
+    {
+      "stock_id": "1815",
+      "strategy": "超賣反彈",
+      "close": 96.2,
+      "vol_ratio": 0.9,
+      "rsi": 34.4,
+      "pct_change": 6.77
+    },
+    {
+      "stock_id": "2067",
+      "strategy": "超賣反彈",
+      "close": 6.47,
+      "vol_ratio": 1.3,
+      "rsi": 39.7,
+      "pct_change": 5.03
+    },
+    {
+      "stock_id": "2230",
+      "strategy": "超賣反彈",
+      "close": 27.25,
+      "vol_ratio": 1.4,
+      "rsi": 41.9,
+      "pct_change": 4.81
+    },
+    {
+      "stock_id": "2355",
+      "strategy": "超賣反彈",
+      "close": 61.6,
+      "vol_ratio": 2.1,
+      "rsi": 41.9,
+      "pct_change": 4.94
+    },
+    {
+      "stock_id": "2380",
+      "strategy": "布林突破",
+      "close": 6.43,
+      "vol_ratio": 3.0,
+      "rsi": 62.3,
+      "pct_change": 9.91
+    },
+    {
+      "stock_id": "2758",
+      "strategy": "超賣反彈",
+      "close": 65.8,
+      "vol_ratio": 2.5,
+      "rsi": 53.9,
+      "pct_change": 2.65
+    },
+    {
+      "stock_id": "2942",
+      "strategy": "超賣反彈",
+      "close": 37.65,
+      "vol_ratio": 2.1,
+      "rsi": 49.8,
+      "pct_change": 0.4
+    },
+    {
+      "stock_id": "2947",
+      "strategy": "超賣反彈",
+      "close": 76.7,
+      "vol_ratio": 0.5,
+      "rsi": 34.3,
+      "pct_change": 0.52
+    },
+    {
+      "stock_id": "3028",
+      "strategy": "超賣反彈",
+      "close": 75.0,
+      "vol_ratio": 0.7,
+      "rsi": 35.5,
+      "pct_change": 1.08
+    },
+    {
+      "stock_id": "3041",
+      "strategy": "超賣反彈",
+      "close": 24.55,
+      "vol_ratio": 1.0,
+      "rsi": 32.9,
+      "pct_change": 1.24
+    },
+    {
+      "stock_id": "3094",
+      "strategy": "超賣反彈",
+      "close": 32.15,
+      "vol_ratio": 1.8,
+      "rsi": 34.2,
+      "pct_change": 9.91
+    },
+    {
+      "stock_id": "3150",
+      "strategy": "超賣反彈",
+      "close": 18.35,
+      "vol_ratio": 0.5,
+      "rsi": 34.4,
+      "pct_change": 0.82
+    },
+    {
+      "stock_id": "3169",
+      "strategy": "超賣反彈",
+      "close": 107.0,
+      "vol_ratio": 0.5,
+      "rsi": 32.1,
+      "pct_change": 2.39
+    },
+    {
+      "stock_id": "3176",
+      "strategy": "超賣反彈",
+      "close": 33.45,
+      "vol_ratio": 0.8,
+      "rsi": 40.7,
+      "pct_change": 1.83
+    },
+    {
+      "stock_id": "3310",
+      "strategy": "超賣反彈",
+      "close": 67.4,
+      "vol_ratio": 0.4,
+      "rsi": 34.6,
+      "pct_change": 0.6
+    },
+    {
+      "stock_id": "3533",
+      "strategy": "超賣反彈",
+      "close": 2240.0,
+      "vol_ratio": 0.6,
+      "rsi": 34.5,
+      "pct_change": 4.43
+    },
+    {
+      "stock_id": "3588",
+      "strategy": "超賣反彈",
+      "close": 57.4,
+      "vol_ratio": 0.8,
+      "rsi": 34.7,
+      "pct_change": 1.41
+    },
+    {
+      "stock_id": "3605",
+      "strategy": "超賣反彈",
+      "close": 73.3,
+      "vol_ratio": 0.9,
+      "rsi": 33.5,
+      "pct_change": 0.55
+    },
+    {
+      "stock_id": "3661",
+      "strategy": "超賣反彈",
+      "close": 4105.0,
+      "vol_ratio": 0.9,
+      "rsi": 32.2,
+      "pct_change": 1.11
+    },
+    {
+      "stock_id": "3665",
+      "strategy": "超賣反彈",
+      "close": 2310.0,
+      "vol_ratio": 1.3,
+      "rsi": 49.3,
+      "pct_change": 6.94
+    },
+    {
+      "stock_id": "4128",
+      "strategy": "超賣反彈",
+      "close": 15.0,
+      "vol_ratio": 0.6,
+      "rsi": 48.1,
+      "pct_change": 2.39
+    },
+    {
+      "stock_id": "4131",
+      "strategy": "超賣反彈",
+      "close": 37.6,
+      "vol_ratio": 1.1,
+      "rsi": 52.2,
+      "pct_change": Infinity
+    },
+    {
+      "stock_id": "4148",
+      "strategy": "超賣反彈",
+      "close": 30.9,
+      "vol_ratio": 0.4,
+      "rsi": 39.9,
+      "pct_change": 1.81
+    },
+    {
+      "stock_id": "4157",
+      "strategy": "超賣反彈",
+      "close": 8.84,
+      "vol_ratio": 0.8,
+      "rsi": 33.3,
+      "pct_change": 2.79
+    },
+    {
+      "stock_id": "4174",
+      "strategy": "超賣反彈",
+      "close": 28.1,
+      "vol_ratio": 0.9,
+      "rsi": 32.6,
+      "pct_change": 1.44
+    },
+    {
+      "stock_id": "4401",
+      "strategy": "超賣反彈",
+      "close": 14.1,
+      "vol_ratio": 0.4,
+      "rsi": 57.6,
+      "pct_change": 0.71
+    },
+    {
+      "stock_id": "4439",
+      "strategy": "超賣反彈",
+      "close": 90.1,
+      "vol_ratio": 1.1,
+      "rsi": 37.4,
+      "pct_change": 2.39
+    },
+    {
+      "stock_id": "4440",
+      "strategy": "超賣反彈",
+      "close": 17.15,
+      "vol_ratio": 0.4,
+      "rsi": 38.0,
+      "pct_change": 0.29
+    },
+    {
+      "stock_id": "4551",
+      "strategy": "超賣反彈",
+      "close": 152.0,
+      "vol_ratio": 1.1,
+      "rsi": 45.1,
+      "pct_change": 9.75
+    },
+    {
+      "stock_id": "4558",
+      "strategy": "超賣反彈",
+      "close": 18.65,
+      "vol_ratio": 0.6,
+      "rsi": 33.8,
+      "pct_change": 0.81
+    },
+    {
+      "stock_id": "4729",
+      "strategy": "超賣反彈",
+      "close": 22.1,
+      "vol_ratio": 0.8,
+      "rsi": 36.6,
+      "pct_change": 4.74
+    },
+    {
+      "stock_id": "4732",
+      "strategy": "超賣反彈",
+      "close": 18.1,
+      "vol_ratio": 0.3,
+      "rsi": 38.3,
+      "pct_change": 6.16
+    },
+    {
+      "stock_id": "4768",
+      "strategy": "超賣反彈",
+      "close": 385.5,
+      "vol_ratio": 0.6,
+      "rsi": 33.6,
+      "pct_change": 3.77
+    },
+    {
+      "stock_id": "4933",
+      "strategy": "超賣反彈",
+      "close": 67.5,
+      "vol_ratio": 0.7,
+      "rsi": 34.7,
+      "pct_change": 2.58
+    },
+    {
+      "stock_id": "4980",
+      "strategy": "超賣反彈",
+      "close": 42.95,
+      "vol_ratio": 0.5,
+      "rsi": 34.0,
+      "pct_change": 6.05
+    },
+    {
+      "stock_id": "5205",
+      "strategy": "布林突破",
+      "close": 24.95,
+      "vol_ratio": 2.7,
+      "rsi": 60.9,
+      "pct_change": 5.27
+    },
+    {
+      "stock_id": "5271",
+      "strategy": "超賣反彈",
+      "close": 15.5,
+      "vol_ratio": 0.5,
+      "rsi": 32.0,
+      "pct_change": 0.65
+    },
+    {
+      "stock_id": "5272",
+      "strategy": "超賣反彈",
+      "close": 21.25,
+      "vol_ratio": 1.0,
+      "rsi": 37.6,
+      "pct_change": 4.42
+    },
+    {
+      "stock_id": "5287",
+      "strategy": "超賣反彈",
+      "close": 147.0,
+      "vol_ratio": 0.8,
+      "rsi": 39.4,
+      "pct_change": 0.34
+    },
+    {
+      "stock_id": "5457",
+      "strategy": "布林突破",
+      "close": 35.55,
+      "vol_ratio": 1.9,
+      "rsi": 68.8,
+      "pct_change": 9.89
+    },
+    {
+      "stock_id": "5460",
+      "strategy": "超賣反彈",
+      "close": 14.85,
+      "vol_ratio": 0.6,
+      "rsi": 35.9,
+      "pct_change": 1.37
+    },
+    {
+      "stock_id": "5538",
+      "strategy": "超賣反彈",
+      "close": 32.45,
+      "vol_ratio": 0.2,
+      "rsi": 35.1,
+      "pct_change": 1.72
+    },
+    {
+      "stock_id": "6111",
+      "strategy": "超賣反彈",
+      "close": 44.9,
+      "vol_ratio": 1.4,
+      "rsi": 42.7,
+      "pct_change": 2.05
+    },
+    {
+      "stock_id": "6118",
+      "strategy": "超賣反彈",
+      "close": 16.95,
+      "vol_ratio": 1.0,
+      "rsi": 32.7,
+      "pct_change": 1.5
+    },
+    {
+      "stock_id": "6151",
+      "strategy": "超賣反彈",
+      "close": 42.25,
+      "vol_ratio": 0.8,
+      "rsi": 33.4,
+      "pct_change": 0.96
+    },
+    {
+      "stock_id": "6179",
+      "strategy": "超賣反彈",
+      "close": 24.0,
+      "vol_ratio": 0.8,
+      "rsi": 43.3,
+      "pct_change": 2.78
+    },
+    {
+      "stock_id": "6183",
+      "strategy": "超賣反彈",
+      "close": 89.7,
+      "vol_ratio": 0.3,
+      "rsi": 35.1,
+      "pct_change": 1.13
+    },
+    {
+      "stock_id": "6202",
+      "strategy": "超賣反彈",
+      "close": 59.4,
+      "vol_ratio": 2.4,
+      "rsi": 46.5,
+      "pct_change": 10.0
+    },
+    {
+      "stock_id": "6208",
+      "strategy": "超賣反彈",
+      "close": 86.9,
+      "vol_ratio": 1.2,
+      "rsi": 34.8,
+      "pct_change": 10.0
+    },
+    {
+      "stock_id": "6225",
+      "strategy": "超賣反彈",
+      "close": 23.3,
+      "vol_ratio": 0.1,
+      "rsi": 38.2,
+      "pct_change": 0.87
+    },
+    {
+      "stock_id": "6242",
+      "strategy": "超賣反彈",
+      "close": 38.15,
+      "vol_ratio": 1.3,
+      "rsi": 49.8,
+      "pct_change": 0.39
+    },
+    {
+      "stock_id": "6263",
+      "strategy": "超賣反彈",
+      "close": 158.5,
+      "vol_ratio": 0.5,
+      "rsi": 32.2,
+      "pct_change": 1.6
+    },
+    {
+      "stock_id": "6278",
+      "strategy": "超賣反彈",
+      "close": 211.0,
+      "vol_ratio": 0.9,
+      "rsi": 36.2,
+      "pct_change": 9.9
+    },
+    {
+      "stock_id": "6416",
+      "strategy": "超賣反彈",
+      "close": 83.0,
+      "vol_ratio": 0.4,
+      "rsi": 32.7,
+      "pct_change": 1.47
+    },
+    {
+      "stock_id": "6467",
+      "strategy": "超賣反彈",
+      "close": 120.0,
+      "vol_ratio": 0.7,
+      "rsi": 36.8,
+      "pct_change": 0.42
+    },
+    {
+      "stock_id": "6492",
+      "strategy": "超賣反彈",
+      "close": 44.3,
+      "vol_ratio": 0.7,
+      "rsi": 44.9,
+      "pct_change": 2.07
+    },
+    {
+      "stock_id": "6532",
+      "strategy": "超賣反彈",
+      "close": 88.9,
+      "vol_ratio": 0.9,
+      "rsi": 32.1,
+      "pct_change": 4.22
+    },
+    {
+      "stock_id": "6583",
+      "strategy": "超賣反彈",
+      "close": 12.5,
+      "vol_ratio": 1.5,
+      "rsi": 50.5,
+      "pct_change": 0.81
+    },
+    {
+      "stock_id": "6621",
+      "strategy": "超賣反彈",
+      "close": 11.65,
+      "vol_ratio": 1.6,
+      "rsi": 35.5,
+      "pct_change": 4.02
+    },
+    {
+      "stock_id": "6629",
+      "strategy": "超賣反彈",
+      "close": 115.5,
+      "vol_ratio": 0.9,
+      "rsi": 43.5,
+      "pct_change": 2.21
+    },
+    {
+      "stock_id": "6637",
+      "strategy": "超賣反彈",
+      "close": 62.5,
+      "vol_ratio": 0.4,
+      "rsi": 34.6,
+      "pct_change": 0.81
+    },
+    {
+      "stock_id": "6665",
+      "strategy": "超賣反彈",
+      "close": 19.45,
+      "vol_ratio": 0.1,
+      "rsi": 38.3,
+      "pct_change": 1.3
+    },
+    {
+      "stock_id": "6673",
+      "strategy": "超賣反彈",
+      "close": 15.6,
+      "vol_ratio": 0.6,
+      "rsi": 34.4,
+      "pct_change": 5.41
+    },
+    {
+      "stock_id": "6677",
+      "strategy": "超賣反彈",
+      "close": 17.1,
+      "vol_ratio": 1.0,
+      "rsi": 43.0,
+      "pct_change": 3.95
+    },
+    {
+      "stock_id": "6709",
+      "strategy": "超賣反彈",
+      "close": 25.0,
+      "vol_ratio": 0.8,
+      "rsi": 38.5,
+      "pct_change": 1.63
+    },
+    {
+      "stock_id": "6735",
+      "strategy": "超賣反彈",
+      "close": 91.8,
+      "vol_ratio": 0.7,
+      "rsi": 33.3,
+      "pct_change": 2.0
+    },
+    {
+      "stock_id": "6758",
+      "strategy": "超賣反彈",
+      "close": 30.0,
+      "vol_ratio": 0.4,
+      "rsi": 56.9,
+      "pct_change": 1.87
+    },
+    {
+      "stock_id": "6785",
+      "strategy": "超賣反彈",
+      "close": 118.5,
+      "vol_ratio": 1.0,
+      "rsi": 34.5,
+      "pct_change": 4.87
+    },
+    {
+      "stock_id": "6786",
+      "strategy": "超賣反彈",
+      "close": 88.3,
+      "vol_ratio": 1.1,
+      "rsi": 39.7,
+      "pct_change": 1.85
+    },
+    {
+      "stock_id": "6797",
+      "strategy": "超賣反彈",
+      "close": 13.6,
+      "vol_ratio": 1.9,
+      "rsi": 37.9,
+      "pct_change": 4.21
+    },
+    {
+      "stock_id": "6798",
+      "strategy": "超賣反彈",
+      "close": 50.5,
+      "vol_ratio": 1.4,
+      "rsi": 50.3,
+      "pct_change": Infinity
+    },
+    {
+      "stock_id": "6799",
+      "strategy": "超賣反彈",
+      "close": 86.5,
+      "vol_ratio": 0.7,
+      "rsi": 33.5,
+      "pct_change": 3.22
+    },
+    {
+      "stock_id": "6814",
+      "strategy": "超賣反彈",
+      "close": 27.05,
+      "vol_ratio": 2.1,
+      "rsi": 62.6,
+      "pct_change": 19.96
+    },
+    {
+      "stock_id": "6832",
+      "strategy": "超賣反彈",
+      "close": 84.5,
+      "vol_ratio": 0.0,
+      "rsi": 34.0,
+      "pct_change": 3.05
+    },
+    {
+      "stock_id": "6833",
+      "strategy": "超賣反彈",
+      "close": 23.85,
+      "vol_ratio": 1.3,
+      "rsi": 40.4,
+      "pct_change": 1.06
+    },
+    {
+      "stock_id": "6835",
+      "strategy": "超賣反彈",
+      "close": 36.45,
+      "vol_ratio": 0.5,
+      "rsi": 38.5,
+      "pct_change": 0.55
+    },
+    {
+      "stock_id": "6867",
+      "strategy": "超賣反彈",
+      "close": 20.8,
+      "vol_ratio": 0.5,
+      "rsi": 38.2,
+      "pct_change": 0.24
+    },
+    {
+      "stock_id": "6875",
+      "strategy": "超賣反彈",
+      "close": 35.05,
+      "vol_ratio": 0.4,
+      "rsi": 35.4,
+      "pct_change": 2.64
+    },
+    {
+      "stock_id": "6912",
+      "strategy": "超賣反彈",
+      "close": 13.65,
+      "vol_ratio": 0.4,
+      "rsi": 38.9,
+      "pct_change": 0.37
+    },
+    {
+      "stock_id": "6928",
+      "strategy": "超賣反彈",
+      "close": 43.85,
+      "vol_ratio": 1.2,
+      "rsi": 34.0,
+      "pct_change": 1.86
+    },
+    {
+      "stock_id": "6962",
+      "strategy": "超賣反彈",
+      "close": 35.8,
+      "vol_ratio": 0.9,
+      "rsi": 34.7,
+      "pct_change": 2.87
+    },
+    {
+      "stock_id": "6968",
+      "strategy": "超賣反彈",
+      "close": 43.4,
+      "vol_ratio": 1.8,
+      "rsi": 47.2,
+      "pct_change": 1.05
+    },
+    {
+      "stock_id": "6969",
+      "strategy": "超賣反彈",
+      "close": 27.0,
+      "vol_ratio": 0.4,
+      "rsi": 36.2,
+      "pct_change": 0.93
+    },
+    {
+      "stock_id": "6977",
+      "strategy": "超賣反彈",
+      "close": 274.5,
+      "vol_ratio": 0.4,
+      "rsi": 33.3,
+      "pct_change": 5.58
+    },
+    {
+      "stock_id": "7507",
+      "strategy": "超賣反彈",
+      "close": 22.35,
+      "vol_ratio": 1.0,
+      "rsi": 44.3,
+      "pct_change": 6.43
+    },
+    {
+      "stock_id": "7516",
+      "strategy": "超賣反彈",
+      "close": 9.1,
+      "vol_ratio": 0.6,
+      "rsi": 44.2,
+      "pct_change": 5.81
+    },
+    {
+      "stock_id": "7703",
+      "strategy": "超賣反彈",
+      "close": 203.5,
+      "vol_ratio": 1.1,
+      "rsi": 40.5,
+      "pct_change": 7.11
+    },
+    {
+      "stock_id": "7707",
+      "strategy": "超賣反彈",
+      "close": 143.0,
+      "vol_ratio": 0.9,
+      "rsi": 35.1,
+      "pct_change": 1.78
+    },
+    {
+      "stock_id": "7723",
+      "strategy": "超賣反彈",
+      "close": 22.9,
+      "vol_ratio": 1.3,
+      "rsi": 37.1,
+      "pct_change": 1.33
+    },
+    {
+      "stock_id": "7759",
+      "strategy": "超賣反彈",
+      "close": 30.35,
+      "vol_ratio": 0.3,
+      "rsi": 33.4,
+      "pct_change": 3.58
+    },
+    {
+      "stock_id": "7760",
+      "strategy": "超賣反彈",
+      "close": 32.15,
+      "vol_ratio": 1.2,
+      "rsi": 37.4,
+      "pct_change": 0.47
+    },
+    {
+      "stock_id": "7763",
+      "strategy": "超賣反彈",
+      "close": 193.0,
+      "vol_ratio": 0.4,
+      "rsi": 34.0,
+      "pct_change": 1.58
+    },
+    {
+      "stock_id": "7773",
+      "strategy": "超賣反彈",
+      "close": 28.4,
+      "vol_ratio": 0.9,
+      "rsi": 34.7,
+      "pct_change": 3.27
+    },
+    {
+      "stock_id": "7779",
+      "strategy": "超賣反彈",
+      "close": 13.45,
+      "vol_ratio": 1.0,
+      "rsi": 51.3,
+      "pct_change": 1.89
+    },
+    {
+      "stock_id": "7782",
+      "strategy": "超賣反彈",
+      "close": 25.15,
+      "vol_ratio": 1.0,
+      "rsi": 36.2,
+      "pct_change": 0.6
+    },
+    {
+      "stock_id": "7795",
+      "strategy": "超賣反彈",
+      "close": 375.0,
+      "vol_ratio": 0.9,
+      "rsi": 34.2,
+      "pct_change": 7.14
+    },
+    {
+      "stock_id": "7808",
+      "strategy": "超賣反彈",
+      "close": 37.35,
+      "vol_ratio": 2.0,
+      "rsi": 38.4,
+      "pct_change": 0.95
+    },
+    {
+      "stock_id": "7836",
+      "strategy": "超賣反彈",
+      "close": 53.0,
+      "vol_ratio": 0.9,
+      "rsi": 39.4,
+      "pct_change": 0.19
+    },
+    {
+      "stock_id": "7862",
+      "strategy": "超賣反彈",
+      "close": 31.4,
+      "vol_ratio": 1.3,
+      "rsi": 35.6,
+      "pct_change": 5.72
+    },
+    {
+      "stock_id": "7867",
+      "strategy": "超賣反彈",
+      "close": 54.9,
+      "vol_ratio": 0.3,
+      "rsi": 35.7,
+      "pct_change": 2.23
+    },
+    {
+      "stock_id": "7893",
+      "strategy": "超賣反彈",
+      "close": 192.0,
+      "vol_ratio": 0.2,
+      "rsi": 32.3,
+      "pct_change": 1.32
+    },
+    {
+      "stock_id": "8066",
+      "strategy": "超賣反彈",
+      "close": 15.4,
+      "vol_ratio": 0.2,
+      "rsi": 37.2,
+      "pct_change": 2.33
+    },
+    {
+      "stock_id": "8068",
+      "strategy": "超賣反彈",
+      "close": 18.8,
+      "vol_ratio": 1.2,
+      "rsi": 33.0,
+      "pct_change": 1.9
+    },
+    {
+      "stock_id": "8367",
+      "strategy": "超賣反彈",
+      "close": 40.35,
+      "vol_ratio": 0.3,
+      "rsi": 44.9,
+      "pct_change": 0.37
+    },
+    {
+      "stock_id": "8409",
+      "strategy": "超賣反彈",
+      "close": 19.1,
+      "vol_ratio": 0.9,
+      "rsi": 33.3,
+      "pct_change": 0.53
+    },
+    {
+      "stock_id": "8481",
+      "strategy": "布林突破",
+      "close": 41.9,
+      "vol_ratio": 1.6,
+      "rsi": 73.6,
+      "pct_change": 1.21
+    },
+    {
+      "stock_id": "8489",
+      "strategy": "超賣反彈",
+      "close": 22.25,
+      "vol_ratio": 0.4,
+      "rsi": 37.3,
+      "pct_change": 0.91
+    },
+    {
+      "stock_id": "8916",
+      "strategy": "超賣反彈",
+      "close": 45.0,
+      "vol_ratio": 0.5,
+      "rsi": 35.3,
+      "pct_change": 0.22
+    },
+    {
+      "stock_id": "8932",
+      "strategy": "布林突破",
+      "close": 106.5,
+      "vol_ratio": 2.3,
+      "rsi": 51.4,
+      "pct_change": 8.45
+    },
+    {
+      "stock_id": "9950",
+      "strategy": "超賣反彈",
+      "close": 10.75,
+      "vol_ratio": 0.9,
+      "rsi": 47.4,
+      "pct_change": 0.94
+    }
+  ]
+}

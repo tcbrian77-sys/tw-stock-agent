@@ -15,6 +15,7 @@ import pandas as pd
 from datetime import date
 from dotenv import load_dotenv
 from notify import send
+from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
@@ -60,6 +61,9 @@ def _fetch_revenue_from_api() -> pd.DataFrame:
     """逐月向 FinMind 抓全市場月營收。
     API 在不帶 stock_id 時只回傳指定 start_date 當月截面，
     因此必須逐月呼叫（每次約 2,000 筆，一次呼叫 2-3 秒）。
+    帳號若已降級（免費/register 等級），全市場批次查詢會被拒絕，
+    此時改為逐檔查詢：單檔查詢只帶 start_date（不帶 end_date）會一次回傳
+    該股從 start_date 到最新的「全部」月份，因此只需每檔查詢一次。
     """
     months = _revenue_month_dates()
     print(f"📡 逐月下載月營收（{REVENUE_START} 起，共 {len(months)} 個月）...")
@@ -73,16 +77,27 @@ def _fetch_revenue_from_api() -> pd.DataFrame:
                 "start_date": m_date,
                 "token": TOKEN,
             }, timeout=60)
+            payload = r.json()
         except requests.RequestException as e:
             print(f"\n⚠️  {m_date} 請求失敗：{e}，跳過")
             continue
 
-        if r.status_code != 200:
-            print(f"\n⚠️  {m_date} HTTP {r.status_code}，跳過")
-            continue
+        if is_level_error(payload):
+            print(f"\n⚠️  帳號等級不足，無法使用全市場批次查詢（第 {i+1} 個月即遭拒絕）。")
+            print("   改為逐檔查詢完整歷史（每檔一次呼叫即可拿到全部月份，約需數小時）...")
+            stock_ids = load_stock_universe()
+            df = fetch_dataset_per_stock(
+                "TaiwanStockMonthRevenue", TOKEN, stock_ids,
+                start_date=REVENUE_START, label="月營收",
+            )
+            if df.empty:
+                print("❌ 無法從 FinMind 取得任何月營收資料")
+                sys.exit(1)
+            unique_dates = df["date"].nunique() if "date" in df.columns else "?"
+            print(f"✅ 下載完成：{len(df):,} 筆，{df['stock_id'].nunique():,} 檔，{unique_dates} 個月份")
+            return df
 
-        payload = r.json()
-        if payload.get("msg") != "success":
+        if r.status_code != 200 or payload.get("msg") != "success":
             # 未來月份可能回傳 empty，正常跳過
             continue
 

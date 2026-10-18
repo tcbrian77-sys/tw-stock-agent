@@ -12,6 +12,8 @@ import requests
 import pandas as pd
 from datetime import date
 from dotenv import load_dotenv
+from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
+import twse_source
 
 # 讀取 .env 檔裡的 FINMIND_TOKEN
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
@@ -22,7 +24,10 @@ API_URL = "https://api.finmindtrade.com/api/v4/data"
 
 
 def fetch_prices(target_date: str) -> pd.DataFrame:
-    """向 FinMind 要求指定日期的全市場收盤資料，一次呼叫搞定。"""
+    """向 FinMind 要求指定日期的全市場收盤資料。
+    帳號若已降級（免費/register 等級），全市場批次查詢會被拒絕，
+    此時自動改為逐檔查詢（較慢，約數小時）。
+    """
     print(f"📡 正在向 FinMind 請求 {target_date} 的資料...")
 
     params = {
@@ -33,15 +38,36 @@ def fetch_prices(target_date: str) -> pd.DataFrame:
     }
 
     response = requests.get(API_URL, params=params, timeout=60)
-    response.raise_for_status()  # 如果 HTTP 錯誤（如 401、500）就直接停止
-
     data = response.json()
 
-    # FinMind 回傳格式：{"msg": "success", "data": [...]}
-    if data.get("msg") != "success":
-        raise RuntimeError(f"FinMind 回傳錯誤：{data.get('msg')}")
+    if data.get("msg") == "success":
+        return pd.DataFrame(data["data"])
 
-    return pd.DataFrame(data["data"])
+    if is_level_error(data):
+        print("⚠️  帳號等級不足（FinMind 付費訂閱可能已過期），無法使用全市場批次查詢。")
+
+        if target_date == date.today().isoformat():
+            print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰）...")
+            try:
+                df = twse_source.fetch_prices_today(max_wait_minutes=30, poll_interval_sec=60)
+                if not df.empty:
+                    print(f"   ✅ TWSE+TPEx 取得 {len(df):,} 筆")
+                    return df
+                print("   ⚠️  TWSE+TPEx 回傳空值，改用逐檔查詢")
+            except Exception as e:
+                print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}，改用逐檔查詢")
+        else:
+            print("   （非今日資料，TWSE+TPEx 來源僅支援當日快照，改用逐檔查詢）")
+
+        print("   改為逐檔向 FinMind 查詢（約需數小時，請耐心等候）...")
+        stock_ids = load_stock_universe()
+        return fetch_dataset_per_stock(
+            "TaiwanStockPrice", TOKEN, stock_ids,
+            start_date=target_date, end_date=target_date, label="收盤價",
+        )
+
+    response.raise_for_status()  # 其他 HTTP 錯誤（如 401、500）就直接停止
+    raise RuntimeError(f"FinMind 回傳錯誤：{data.get('msg')}")
 
 
 def save_prices(df: pd.DataFrame, target_date: str) -> str:

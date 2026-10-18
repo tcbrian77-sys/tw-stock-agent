@@ -8,9 +8,11 @@ __pycache__/
 .venv/
 venv/
 
-# 資料檔與執行紀錄（太大或無需版控）
-data/
+# 執行紀錄（GitHub Actions 的 log 本身就看得到，不需要額外存檔）
 logs/
+
+# 本機測試用的暫存檔，雲端版不需要
+catch_up.sh
 
 # 系統檔
 .DS_Store

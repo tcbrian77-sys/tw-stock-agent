@@ -12,6 +12,8 @@ import requests
 import pandas as pd
 from datetime import date
 from dotenv import load_dotenv
+from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
+import twse_source
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
@@ -21,20 +23,52 @@ API_URL = "https://api.finmindtrade.com/api/v4/data"
 
 
 def fetch_dataset(dataset: str, target_date: str) -> pd.DataFrame:
-    """向 FinMind 要求指定 dataset 的資料，一次呼叫拿全市場。"""
+    """向 FinMind 要求指定 dataset 的資料。
+    帳號若已降級（免費/register 等級），全市場批次查詢會被拒絕，
+    此時自動改為逐檔查詢（較慢，約數小時）。
+    """
     response = requests.get(API_URL, params={
         "dataset": dataset,
         "start_date": target_date,
         "end_date": target_date,
         "token": TOKEN,
     }, timeout=60)
-    response.raise_for_status()
-
     data = response.json()
-    if data.get("msg") != "success":
-        raise RuntimeError(f"FinMind 回傳錯誤：{data.get('msg')}")
 
-    return pd.DataFrame(data["data"])
+    if data.get("msg") == "success":
+        return pd.DataFrame(data["data"])
+
+    if is_level_error(data):
+        print(f"⚠️  {dataset} 帳號等級不足，無法使用全市場批次查詢。")
+
+        twse_fetchers = {
+            "TaiwanStockInstitutionalInvestorsBuySell": twse_source.fetch_institutional_today,
+            "TaiwanStockMarginPurchaseShortSale": twse_source.fetch_margin_today,
+        }
+        fetcher = twse_fetchers.get(dataset)
+
+        if fetcher and target_date == date.today().isoformat():
+            print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰）...")
+            try:
+                df = fetcher()
+                if not df.empty:
+                    print(f"   ✅ TWSE+TPEx 取得 {len(df):,} 筆")
+                    return df
+                print("   ⚠️  TWSE+TPEx 回傳空值，改用逐檔查詢")
+            except Exception as e:
+                print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}，改用逐檔查詢")
+        else:
+            print("   （非今日資料或無對應來源，改用逐檔查詢）")
+
+        print("   改為逐檔向 FinMind 查詢（約需數小時，請耐心等候）...")
+        stock_ids = load_stock_universe()
+        return fetch_dataset_per_stock(
+            dataset, TOKEN, stock_ids,
+            start_date=target_date, end_date=target_date, label=dataset,
+        )
+
+    response.raise_for_status()
+    raise RuntimeError(f"FinMind 回傳錯誤：{data.get('msg')}")
 
 
 def fetch_institutional(target_date: str) -> pd.DataFrame:

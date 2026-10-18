@@ -15,6 +15,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from notify import send
+from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
@@ -102,6 +103,21 @@ def load_per_cache() -> pd.DataFrame:
                 "token":      TOKEN,
             }, timeout=30)
             payload = r.json()
+
+            if is_level_error(payload):
+                print("⚠️  帳號等級不足，無法使用全市場批次查詢。改為逐檔查詢（約需數小時）...")
+                stock_ids = load_stock_universe()
+                df = fetch_dataset_per_stock(
+                    "TaiwanStockPER", TOKEN, stock_ids,
+                    start_date=check_date, end_date=check_date, label="PER",
+                )
+                if not df.empty:
+                    df["stock_id"] = df["stock_id"].astype(str)
+                    df.to_csv(cache_f, index=False)
+                    print(f"✅ PER 快取完成（逐檔）：{len(df):,} 筆（{check_date}）")
+                    return df
+                continue
+
             if payload.get("msg") == "success" and payload.get("data"):
                 df = pd.DataFrame(payload["data"])
                 df["stock_id"] = df["stock_id"].astype(str)

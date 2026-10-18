@@ -1,0 +1,40 @@
+name: monitor (盤中監控)
+
+on:
+  schedule:
+    # 每 10 分鐘，01:00-05:50 UTC = 09:00-13:50 台北時間
+    # （monitor.py 內部會再檢查 9:00-13:30，超出範圍自動跳過，不會誤發）
+    - cron: '*/10 1-5 * * 1-5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - name: Run monitor.py
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "tw-stock-agent-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/ watchlist_conditions.json alerted.json morning_watchlist_*.txt 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore: monitor 自動更新資料 [skip ci]"
+          git pull --rebase --autostash
+          git push
