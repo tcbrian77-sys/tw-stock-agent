@@ -46,18 +46,17 @@ def fetch_prices(target_date: str) -> pd.DataFrame:
     if is_level_error(data):
         print("⚠️  帳號等級不足（FinMind 付費訂閱可能已過期），無法使用全市場批次查詢。")
 
-        if target_date == date.today().isoformat():
-            print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰）...")
-            try:
-                df = twse_source.fetch_prices_today(max_wait_minutes=30, poll_interval_sec=60)
-                if not df.empty:
-                    print(f"   ✅ TWSE+TPEx 取得 {len(df):,} 筆")
-                    return df
-                print("   ⚠️  TWSE+TPEx 回傳空值，改用逐檔查詢")
-            except Exception as e:
-                print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}，改用逐檔查詢")
-        else:
-            print("   （非今日資料，TWSE+TPEx 來源僅支援當日快照，改用逐檔查詢）")
+        print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰，支援任何歷史日期）...")
+        try:
+            wait = 30 if target_date == date.today().isoformat() else 0
+            df = twse_source.fetch_prices_for_date(target_date, max_wait_minutes=wait, poll_interval_sec=60)
+            if not df.empty:
+                print(f"   ✅ TWSE+TPEx 取得 {len(df):,} 筆")
+                return df
+            print("   ℹ️  TWSE+TPEx 兩邊都查無資料，視為假日/休市日，不觸發逐檔查詢")
+            return df
+        except Exception as e:
+            print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}，改用逐檔查詢")
 
         print("   改為逐檔向 FinMind 查詢（約需數小時，請耐心等候）...")
         stock_ids = load_stock_universe()

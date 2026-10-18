@@ -265,6 +265,12 @@ def _calc_rsi(series: pd.Series, period: int = 14) -> pd.Series:
 def _calc_indicators(group: pd.DataFrame) -> pd.DataFrame:
     g = group.copy().reset_index(drop=True)
 
+    # 個別交易日若無正常成交價（例如零股/鉅額交易，TWSE/TPEx 標示為
+    # "--"），close 會是 NaN。單一缺值若不處理，會讓接下來約 20 個交易日
+    # 的滾動指標（布林、RSI）整段變成 NaN。用前一日收盤價補值（視為當天
+    # 價格持平），是金融時間序列常見的缺值處理方式。
+    g[["open", "max", "min", "close"]] = g[["open", "max", "min", "close"]].ffill()
+
     g["sma20"]    = g["close"].rolling(20).mean()
     g["std20"]    = g["close"].rolling(20).std()
     g["bb_upper"] = g["sma20"] + 2 * g["std20"]

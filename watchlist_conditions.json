@@ -2,86 +2,31 @@
   "date": "2026-10-16",
   "signals": [
     {
-      "stock_id": "1815",
-      "strategy": "布林突破",
-      "close": 140.0,
-      "vol_ratio": 3.3,
-      "rsi": 69.1,
-      "pct_change": 45.53,
-      "revenue": 938542000,
-      "yoy": 82.14,
-      "revenue_all_time_high": true
-    },
-    {
-      "stock_id": "2480",
-      "strategy": "布林突破",
-      "close": 187.0,
-      "vol_ratio": 4.2,
-      "rsi": 65.2,
-      "pct_change": 17.61,
-      "revenue": 976591000,
-      "yoy": 50.45,
-      "revenue_all_time_high": true
-    },
-    {
       "stock_id": "2913",
       "strategy": "布林突破",
       "close": 11.7,
-      "vol_ratio": 2.0,
-      "rsi": 74.2,
-      "pct_change": 4.0,
+      "vol_ratio": 2.1,
+      "rsi": 70.4,
+      "pct_change": 3.08,
       "revenue": 57589000,
       "yoy": 34.07,
       "revenue_all_time_high": true
     },
     {
-      "stock_id": "4938",
-      "strategy": "布林突破",
-      "close": 102.0,
-      "vol_ratio": 1.7,
-      "rsi": 74.9,
-      "pct_change": 14.86,
-      "revenue": 214752761000,
-      "yoy": 86.89,
-      "revenue_all_time_high": true
-    },
-    {
-      "stock_id": "6751",
-      "strategy": "布林突破",
-      "close": 54.5,
-      "vol_ratio": 3.1,
-      "rsi": 67.9,
-      "pct_change": 11.91,
-      "revenue": 265191000,
-      "yoy": 158.43,
-      "revenue_all_time_high": true
-    },
-    {
-      "stock_id": "6811",
-      "strategy": "布林突破",
-      "close": 280.5,
-      "vol_ratio": 2.7,
-      "rsi": 73.9,
-      "pct_change": 22.76,
-      "revenue": 1529975000,
-      "yoy": 97.4,
-      "revenue_all_time_high": true
-    },
-    {
-      "stock_id": "8050",
-      "strategy": "布林突破",
-      "close": 65.4,
-      "vol_ratio": 1.4,
-      "rsi": 59.1,
-      "pct_change": 13.34,
-      "revenue": 1145456000,
-      "yoy": 167.1,
+      "stock_id": "6830",
+      "strategy": "超賣反彈",
+      "close": 486.5,
+      "vol_ratio": 0.9,
+      "rsi": 26.1,
+      "pct_change": -0.31,
+      "revenue": 264589000,
+      "yoy": 36.71,
       "revenue_all_time_high": true
     }
   ],
   "summary": {
     "fundamental_pass": 70,
     "volume_top50": 50,
-    "final_signals": 7
+    "final_signals": 2
   }
 }

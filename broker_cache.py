@@ -42,19 +42,20 @@ def fetch_dataset(dataset: str, target_date: str) -> pd.DataFrame:
         print(f"⚠️  {dataset} 帳號等級不足，無法使用全市場批次查詢。")
 
         twse_fetchers = {
-            "TaiwanStockInstitutionalInvestorsBuySell": twse_source.fetch_institutional_today,
-            "TaiwanStockMarginPurchaseShortSale": twse_source.fetch_margin_today,
+            "TaiwanStockInstitutionalInvestorsBuySell": twse_source.fetch_institutional_for_date,
+            "TaiwanStockMarginPurchaseShortSale": twse_source.fetch_margin_for_date,
         }
         fetcher = twse_fetchers.get(dataset)
 
-        if fetcher and target_date == date.today().isoformat():
-            print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰）...")
+        if fetcher:
+            print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰，支援任何歷史日期）...")
             try:
-                df = fetcher()
+                df = fetcher(target_date)
                 if not df.empty:
                     print(f"   ✅ TWSE+TPEx 取得 {len(df):,} 筆")
                     return df
-                print("   ⚠️  TWSE+TPEx 回傳空值，改用逐檔查詢")
+                print("   ℹ️  TWSE+TPEx 兩邊都查無資料，視為假日/休市日，不觸發逐檔查詢")
+                return df
             except Exception as e:
                 print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}，改用逐檔查詢")
         else:
