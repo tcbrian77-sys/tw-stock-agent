@@ -1,8 +1,6 @@
 name: stock_cache (收盤抓價)
 
 on:
-  schedule:
-    - cron: '30 6 * * 1-5'   # 14:30 台北時間
   workflow_dispatch: {}
 
 permissions:

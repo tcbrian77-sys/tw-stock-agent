@@ -1,8 +1,6 @@
 name: evening_scan (晚間選股)
 
 on:
-  schedule:
-    - cron: '0 12 * * 1-5'   # 20:00 台北時間
   workflow_dispatch: {}
 
 permissions:

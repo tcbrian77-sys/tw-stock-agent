@@ -1,8 +1,6 @@
 name: broker_cache (籌碼資料)
 
 on:
-  schedule:
-    - cron: '0 14 * * 1-5'   # 22:00 台北時間
   workflow_dispatch: {}
 
 permissions:
