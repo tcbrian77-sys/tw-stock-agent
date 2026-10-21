@@ -313,3 +313,34 @@ def fetch_margin_for_date(target_date: str) -> pd.DataFrame:
             })
 
     return pd.DataFrame(rows)
+
+
+# ═══════════════════════════════════════════════════════════════
+# 本益比／股價淨值比（取代 FinMind TaiwanStockPER）
+# ═══════════════════════════════════════════════════════════════
+
+def fetch_per_today() -> pd.DataFrame:
+    """TWSE + TPEx 全市場今日本益比/殖利率/股價淨值比，合併為 FinMind 相容欄位
+    （stock_id, PER, dividend_yield, PBR）。兩邊都只有「今天」的快照端點，
+    沒有歷史日期參數；PER 只是評分用的輔助資料，當天快取一次即可，不需要
+    像收盤價一樣嚴格等待兩邊日期同步。
+    """
+    rows = []
+
+    for r in _get(f"{TWSE_OPENAPI}/exchangeReport/BWIBBU_ALL"):
+        rows.append({
+            "stock_id":       r["Code"],
+            "PER":            _to_float(r.get("PEratio")),
+            "dividend_yield": _to_float(r.get("DividendYield")),
+            "PBR":            _to_float(r.get("PBratio")),
+        })
+
+    for r in _get(f"{TPEX_OPENAPI}/tpex_mainboard_peratio_analysis"):
+        rows.append({
+            "stock_id":       r["SecuritiesCompanyCode"],
+            "PER":            _to_float(r.get("PriceEarningRatio")),
+            "dividend_yield": _to_float(r.get("YieldRatio")),
+            "PBR":            _to_float(r.get("PriceBookRatio")),
+        })
+
+    return pd.DataFrame(rows)

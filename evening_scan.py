@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 from notify import send
 from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
+import twse_source
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
@@ -105,7 +106,21 @@ def load_per_cache() -> pd.DataFrame:
             payload = r.json()
 
             if is_level_error(payload):
-                print("⚠️  帳號等級不足，無法使用全市場批次查詢。改為逐檔查詢（約需數小時）...")
+                print("⚠️  帳號等級不足，無法使用全市場批次查詢。")
+                print("   改用 TWSE + TPEx 官方開放資料（免費、全市場、無需金鑰）...")
+                try:
+                    df = twse_source.fetch_per_today()
+                except Exception as e:
+                    df = pd.DataFrame()
+                    print(f"   ⚠️  TWSE+TPEx 來源失敗：{e}")
+
+                if not df.empty:
+                    df["stock_id"] = df["stock_id"].astype(str)
+                    df.to_csv(cache_f, index=False)
+                    print(f"✅ PER 快取完成（TWSE+TPEx）：{len(df):,} 筆")
+                    return df
+
+                print("   TWSE+TPEx 來源無資料，改用逐檔查詢（約需數小時，最後手段）...")
                 stock_ids = load_stock_universe()
                 df = fetch_dataset_per_stock(
                     "TaiwanStockPER", TOKEN, stock_ids,
