@@ -1,24 +1,46 @@
 {
-  "date": "2026-10-16",
+  "date": "2026-10-20",
   "signals": [
     {
-      "stock_id": "2913",
+      "stock_id": "2486",
+      "strategy": "超賣反彈",
+      "close": 208.0,
+      "vol_ratio": 0.8,
+      "rsi": 29.3,
+      "pct_change": -2.58,
+      "revenue": 784787000,
+      "yoy": 56.59,
+      "revenue_all_time_high": true
+    },
+    {
+      "stock_id": "4155",
       "strategy": "布林突破",
-      "close": 11.7,
-      "vol_ratio": 2.1,
-      "rsi": 70.4,
-      "pct_change": 3.08,
-      "revenue": 57589000,
-      "yoy": 34.07,
+      "close": 16.15,
+      "vol_ratio": 3.1,
+      "rsi": 66.2,
+      "pct_change": 0.31,
+      "revenue": 217013000,
+      "yoy": 59.99,
+      "revenue_all_time_high": true
+    },
+    {
+      "stock_id": "5321",
+      "strategy": "超賣反彈",
+      "close": 57.9,
+      "vol_ratio": 0.9,
+      "rsi": 29.8,
+      "pct_change": 0.7,
+      "revenue": 395394000,
+      "yoy": 78.89,
       "revenue_all_time_high": true
     },
     {
       "stock_id": "6830",
       "strategy": "超賣反彈",
-      "close": 486.5,
-      "vol_ratio": 0.9,
-      "rsi": 26.1,
-      "pct_change": -0.31,
+      "close": 476.0,
+      "vol_ratio": 0.6,
+      "rsi": 28.2,
+      "pct_change": -3.15,
       "revenue": 264589000,
       "yoy": 36.71,
       "revenue_all_time_high": true
@@ -27,6 +49,6 @@
   "summary": {
     "fundamental_pass": 70,
     "volume_top50": 50,
-    "final_signals": 2
+    "final_signals": 4
   }
 }
