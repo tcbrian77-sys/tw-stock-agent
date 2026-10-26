@@ -12,7 +12,6 @@ import glob
 import json
 import requests
 import pandas as pd
-import yfinance as yf
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
@@ -31,8 +30,8 @@ BROKERS_DIR            = os.path.join(BASE_DIR, "data", "brokers")
 API_URL                = "https://api.finmindtrade.com/api/v4/data"
 TW_TZ                  = ZoneInfo("Asia/Taipei")
 
-# 三大法人合計買超/賣超金額門檻（美金）；只要換算後超過此門檻就通知
-EXCESSIVE_FLOW_USD = 8_000_000
+# 三大法人合計買超/賣超金額門檻（台幣）；只要超過此門檻就通知
+EXCESSIVE_FLOW_TWD = 100_000_000
 
 # 各策略的漲幅觸發門檻（%）
 TRIGGER_PCT = {
@@ -172,18 +171,7 @@ def save_flow_alerted_date(flow_date: str):
         json.dump({"last_sent_date": flow_date}, f, ensure_ascii=False)
 
 
-# ── 三大法人全市場買超/賣超檢查（美金換算）──────────────────
-
-def get_usd_twd_rate() -> float:
-    """台幣兌美金匯率，取不到時用近期合理值頂替，不讓整個檢查因為匯率失敗而中斷。"""
-    try:
-        h = yf.Ticker("TWD=X").history(period="5d")
-        if not h.empty:
-            return float(h.iloc[-1]["Close"])
-    except Exception as e:
-        print(f"⚠️  TWD=X 匯率抓取失敗：{e}")
-    return 31.5  # 近期合理值，查不到匯率時的保底
-
+# ── 三大法人全市場買超/賣超檢查 ──────────────────────────────
 
 def _latest_dated_csv(dir_path: str, prefix: str):
     """回傳某資料夾裡最新一份 {prefix}_YYYY-MM-DD.csv 的 (路徑, 日期字串)。"""
@@ -197,7 +185,7 @@ def _latest_dated_csv(dir_path: str, prefix: str):
 
 
 def check_excessive_flow(names: dict) -> tuple:
-    """全市場三大法人合計買超/賣超金額換算美金，回傳 (buys, sells, 資料日期)。
+    """全市場三大法人合計買超/賣超金額（台幣），回傳 (buys, sells, 資料日期)。
     buys/sells 皆已依金額大小排序（大到小）。
 
     注意：三大法人買賣超是收盤後才有的「當日最終數字」（broker_cache.py
@@ -218,7 +206,6 @@ def check_excessive_flow(names: dict) -> tuple:
     net_by_stock = inst_df.groupby("stock_id")["net"].sum()
     close_by_stock = dict(zip(price_df["stock_id"], price_df["close"]))
 
-    usd_twd = get_usd_twd_rate()
     buys, sells = [], []
 
     for sid, net_shares in net_by_stock.items():
@@ -227,20 +214,20 @@ def check_excessive_flow(names: dict) -> tuple:
         close = close_by_stock.get(sid)
         if not close or close <= 0:
             continue
-        value_usd = abs(net_shares) * close / usd_twd
-        if value_usd <= EXCESSIVE_FLOW_USD:
+        value_twd = abs(net_shares) * close
+        if value_twd <= EXCESSIVE_FLOW_TWD:
             continue
         entry = {
             "stock_id": sid,
             "name": names.get(sid, ""),
             "net_shares": net_shares,
-            "value_usd": value_usd,
+            "value_twd": value_twd,
             "direction": "buy" if net_shares > 0 else "sell",
         }
         (buys if net_shares > 0 else sells).append(entry)
 
-    buys.sort(key=lambda r: r["value_usd"], reverse=True)
-    sells.sort(key=lambda r: r["value_usd"], reverse=True)
+    buys.sort(key=lambda r: r["value_twd"], reverse=True)
+    sells.sort(key=lambda r: r["value_twd"], reverse=True)
     return buys, sells, inst_date
 
 
@@ -288,7 +275,7 @@ def build_overview_message(top_buys: list, top_sells: list, trends: dict, report
     """頭條訊息：前五大買超／賣超，附帶 5 日、10 日股價趨勢比較。"""
     lines = [
         f"📊 三大法人買賣超總覽（{report_date} 收盤資料）",
-        f"門檻：合計買超／賣超換算美金 > ${EXCESSIVE_FLOW_USD:,.0f}",
+        f"門檻：合計買超／賣超金額 > NT${EXCESSIVE_FLOW_TWD:,.0f}",
         "",
         "🟢 買超 Top 5（含 5日/10日股價趨勢）",
     ]
@@ -297,7 +284,7 @@ def build_overview_message(top_buys: list, top_sells: list, trends: dict, report
     for s in top_buys[:5]:
         t = trends.get(s["stock_id"], {})
         lines.append(
-            f"- {s['stock_id']} {s['name']}  買超 ${s['value_usd']:,.0f}  "
+            f"- {s['stock_id']} {s['name']}  買超 NT${s['value_twd']:,.0f}  "
             f"5日 {_fmt_pct(t.get('pct_5d'))} ／ 10日 {_fmt_pct(t.get('pct_10d'))}"
         )
 
@@ -307,7 +294,7 @@ def build_overview_message(top_buys: list, top_sells: list, trends: dict, report
     for s in top_sells[:5]:
         t = trends.get(s["stock_id"], {})
         lines.append(
-            f"- {s['stock_id']} {s['name']}  賣超 ${s['value_usd']:,.0f}  "
+            f"- {s['stock_id']} {s['name']}  賣超 NT${s['value_twd']:,.0f}  "
             f"5日 {_fmt_pct(t.get('pct_5d'))} ／ 10日 {_fmt_pct(t.get('pct_10d'))}"
         )
 
@@ -335,8 +322,8 @@ def build_flow_list_messages(stocks: list, direction_label: str, emoji: str,
         for s in batch:
             lines.append(
                 f"- {s['stock_id']} {s['name']}  "
-                f"{direction_label} {abs(s['net_shares']):,.0f} 股  "
-                f"約 ${s['value_usd']:,.0f} 美金"
+                f"{direction_label} {abs(s['net_shares']) / 1000:,.0f} 張  "
+                f"約 NT${s['value_twd']:,.0f}"
             )
         messages.append("\n".join(lines))
     return messages
