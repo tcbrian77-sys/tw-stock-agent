@@ -33,6 +33,7 @@ jobs:
           git add data/ 2>/dev/null || true
           git add watchlist_conditions.json 2>/dev/null || true
           git add alerted.json 2>/dev/null || true
+          git add selling_alerted.json 2>/dev/null || true
           git add morning_watchlist_*.txt 2>/dev/null || true
           git diff --cached --quiet || git commit -m "chore: monitor 自動更新資料 [skip ci]"
           git pull --rebase --autostash

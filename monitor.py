@@ -8,9 +8,11 @@ crontab 設定：*/10 9-13 * * 1-5 cd ~/tw-stock-agent && python3 monitor.py
 
 import os
 import sys
+import glob
 import json
 import requests
 import pandas as pd
+import yfinance as yf
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
@@ -19,13 +21,18 @@ from notify import send
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 TOKEN = os.getenv("FINMIND_TOKEN")
 
-BASE_DIR        = os.path.dirname(__file__)
-WATCHLIST_PATH  = os.path.join(BASE_DIR, "watchlist_conditions.json")
-ALERTED_PATH    = os.path.join(BASE_DIR, "alerted.json")
-STOCK_INFO_PATH = os.path.join(BASE_DIR, "data", "stock_info.csv")
-PRICES_DIR      = os.path.join(BASE_DIR, "data", "prices")
-API_URL         = "https://api.finmindtrade.com/api/v4/data"
-TW_TZ           = ZoneInfo("Asia/Taipei")
+BASE_DIR              = os.path.dirname(__file__)
+WATCHLIST_PATH         = os.path.join(BASE_DIR, "watchlist_conditions.json")
+ALERTED_PATH           = os.path.join(BASE_DIR, "alerted.json")
+SELLING_ALERTED_PATH   = os.path.join(BASE_DIR, "selling_alerted.json")
+STOCK_INFO_PATH        = os.path.join(BASE_DIR, "data", "stock_info.csv")
+PRICES_DIR             = os.path.join(BASE_DIR, "data", "prices")
+BROKERS_DIR            = os.path.join(BASE_DIR, "data", "brokers")
+API_URL                = "https://api.finmindtrade.com/api/v4/data"
+TW_TZ                  = ZoneInfo("Asia/Taipei")
+
+# 三大法人合計賣超金額門檻（美金）；只要換算後超過此門檻就通知
+EXCESSIVE_SELL_USD = 8_000_000
 
 # 各策略的漲幅觸發門檻（%）
 TRIGGER_PCT = {
@@ -145,6 +152,114 @@ def save_alerted(alerted: set):
     today = date.today().isoformat()
     with open(ALERTED_PATH, "w", encoding="utf-8") as f:
         json.dump({today: list(alerted)}, f, ensure_ascii=False)
+
+
+def load_selling_alerted() -> set:
+    """三大法人賣超通知用，獨立於價格觸發的 alerted.json，避免互相排擠。"""
+    today = date.today().isoformat()
+    if not os.path.exists(SELLING_ALERTED_PATH):
+        return set()
+    with open(SELLING_ALERTED_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    return set(data.get(today, []))
+
+
+def save_selling_alerted(alerted: set):
+    today = date.today().isoformat()
+    with open(SELLING_ALERTED_PATH, "w", encoding="utf-8") as f:
+        json.dump({today: list(alerted)}, f, ensure_ascii=False)
+
+
+# ── 三大法人全市場賣超檢查（美金換算）──────────────────────
+
+def get_usd_twd_rate() -> float:
+    """台幣兌美金匯率，取不到時用近期合理值頂替，不讓整個檢查因為匯率失敗而中斷。"""
+    try:
+        h = yf.Ticker("TWD=X").history(period="5d")
+        if not h.empty:
+            return float(h.iloc[-1]["Close"])
+    except Exception as e:
+        print(f"⚠️  TWD=X 匯率抓取失敗：{e}")
+    return 31.5  # 近期合理值，查不到匯率時的保底
+
+
+def _latest_dated_csv(dir_path: str, prefix: str):
+    """回傳某資料夾裡最新一份 {prefix}_YYYY-MM-DD.csv 的 (路徑, 日期字串)。"""
+    files = sorted(glob.glob(os.path.join(dir_path, f"{prefix}_*.csv")))
+    if not files:
+        return None, None
+    latest = files[-1]
+    fname = os.path.basename(latest)
+    file_date = fname[len(prefix) + 1 : -4]
+    return latest, file_date
+
+
+def check_excessive_selling(names: dict) -> tuple:
+    """全市場三大法人合計賣超金額換算美金，回傳 (超過門檻的清單, 資料日期)。
+
+    注意：三大法人買賣超資料是收盤後才有的「當日最終數字」（broker_cache.py
+    每天 22:00 台北時間才更新），不是盤中即時資料。盤中每 15 分鐘檢查到的，
+    是「最近一次收盤後」的資料，同一天盤中重複檢查會看到同樣的結果，直到
+    當天收盤、broker_cache.py 跑完才會更新成當天的數字。
+    """
+    inst_path, inst_date = _latest_dated_csv(BROKERS_DIR, "institutional")
+    price_path, price_date = _latest_dated_csv(PRICES_DIR, "prices")
+
+    if inst_path is None or price_path is None:
+        print("⚠️  找不到籌碼或價格快取，略過賣超檢查")
+        return [], None
+
+    inst_df = pd.read_csv(inst_path, dtype={"stock_id": str})
+    price_df = pd.read_csv(price_path, dtype={"stock_id": str})
+
+    net_by_stock = inst_df.groupby("stock_id")["net"].sum()
+    close_by_stock = dict(zip(price_df["stock_id"], price_df["close"]))
+
+    usd_twd = get_usd_twd_rate()
+    results = []
+
+    for sid, net_shares in net_by_stock.items():
+        if net_shares >= 0:
+            continue  # 只看賣超（net 為負）
+        close = close_by_stock.get(sid)
+        if not close or close <= 0:
+            continue
+        sell_value_twd = abs(net_shares) * close
+        sell_value_usd = sell_value_twd / usd_twd
+        if sell_value_usd > EXCESSIVE_SELL_USD:
+            results.append({
+                "stock_id": sid,
+                "name": names.get(sid, ""),
+                "net_shares": net_shares,
+                "sell_value_usd": sell_value_usd,
+            })
+
+    results.sort(key=lambda r: r["sell_value_usd"], reverse=True)
+    return results, inst_date
+
+
+def build_selling_messages(stocks: list, report_date: str, batch_size: int = 40) -> list:
+    """切成多則訊息，避免超過 Telegram 單則 4096 字元上限。"""
+    batches = [stocks[i:i + batch_size] for i in range(0, len(stocks), batch_size)] or [[]]
+    total = len(batches)
+
+    messages = []
+    for i, batch in enumerate(batches, 1):
+        page = f"（第 {i}/{total} 則）" if total > 1 else ""
+        lines = [
+            f"🔴 三大法人賣超警示（{report_date} 收盤資料）{page}",
+            f"門檻：合計賣超換算美金 > ${EXCESSIVE_SELL_USD:,.0f}",
+            "",
+        ]
+        for s in batch:
+            lines.append(
+                f"- {s['stock_id']} {s['name']}  "
+                f"賣超 {abs(s['net_shares']):,.0f} 股  "
+                f"約 ${s['sell_value_usd']:,.0f} 美金"
+            )
+        lines += ["", "⚡ 以上為參考訊號，請自行判斷進出場"]
+        messages.append("\n".join(lines))
+    return messages
 
 
 # ── 讀取 watchlist ─────────────────────────────────────────
@@ -307,6 +422,30 @@ def main():
 
     print(f"🔍 [{now_str}] 開始盤中監控...")
 
+    names = load_stock_names()
+
+    # ── 三大法人賣超檢查（全市場，獨立於 watchlist，不受其空清單影響）──
+    selling_alerted = load_selling_alerted()
+    selling_hits, selling_date = check_excessive_selling(names)
+    new_selling = [s for s in selling_hits if s["stock_id"] not in selling_alerted]
+    print(f"🔴 賣超檢查：{len(selling_hits)} 檔超過門檻（{len(new_selling)} 檔尚未通知）")
+
+    if new_selling:
+        batch_size = 40
+        messages = build_selling_messages(new_selling, selling_date, batch_size)
+        sent_ids = set()
+        for i, msg in enumerate(messages):
+            if send(msg):
+                batch = new_selling[i * batch_size : (i + 1) * batch_size]
+                sent_ids.update(s["stock_id"] for s in batch)
+            else:
+                print(f"❌ 賣超警示發送失敗（第 {i + 1}/{len(messages)} 則）")
+
+        if sent_ids:
+            selling_alerted |= sent_ids
+            save_selling_alerted(selling_alerted)
+        print(f"✅ 已發送賣超警示：{len(sent_ids)}/{len(new_selling)} 檔")
+
     watchlist = load_watchlist()
     if not watchlist:
         print("📭 watchlist 為空，今日無候選股票")
@@ -321,7 +460,6 @@ def main():
         print("✅ 所有候選股票今日已通知完畢")
         sys.exit(0)
 
-    names      = load_stock_names()
     stock_ids  = [s["stock_id"] for s in targets]
     price_data = fetch_today_prices(stock_ids)
 
