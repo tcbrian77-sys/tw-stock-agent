@@ -2,3 +2,5 @@ pandas
 requests
 python-dotenv
 yfinance
+youtube-transcript-api
+yt-dlp

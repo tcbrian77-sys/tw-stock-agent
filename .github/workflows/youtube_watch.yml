@@ -1,0 +1,38 @@
+name: youtube_watch (YouTuber 新片監控)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - name: Run youtube_watch.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python youtube_watch.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "tw-stock-agent-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add youtube_seen.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore: youtube_watch 更新已讀影片記錄 [skip ci]"
+          git pull --rebase --autostash
+          git push
