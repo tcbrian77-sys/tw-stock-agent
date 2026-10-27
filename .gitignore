@@ -13,6 +13,7 @@ logs/
 
 # 本機測試用的暫存檔，雲端版不需要
 catch_up.sh
+legacy_local_automation_backup/
 
 # 系統檔
 .DS_Store
