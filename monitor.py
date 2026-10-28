@@ -271,27 +271,30 @@ def _fmt_pct(pct):
     return f"{pct:+.1f}%" if pct is not None else "資料不足"
 
 
+TOP_N_FLOW = 10
+
+
 def build_overview_message(top_buys: list, top_sells: list, trends: dict, report_date: str) -> str:
-    """頭條訊息：前五大買超／賣超，附帶 5 日、10 日股價趨勢比較。"""
+    """頭條訊息：前十大買超／賣超，附帶 5 日、10 日股價趨勢比較。"""
     lines = [
         f"📊 三大法人買賣超總覽（{report_date} 收盤資料）",
         f"門檻：合計買超／賣超金額 > NT${EXCESSIVE_FLOW_TWD:,.0f}",
         "",
-        "🟢 買超 Top 5（含 5日/10日股價趨勢）",
+        f"🟢 買超 Top {TOP_N_FLOW}（含 5日/10日股價趨勢）",
     ]
     if not top_buys:
         lines.append("（無超過門檻的買超股票）")
-    for s in top_buys[:5]:
+    for s in top_buys[:TOP_N_FLOW]:
         t = trends.get(s["stock_id"], {})
         lines.append(
             f"- {s['stock_id']} {s['name']}  買超 NT${s['value_twd']:,.0f}  "
             f"5日 {_fmt_pct(t.get('pct_5d'))} ／ 10日 {_fmt_pct(t.get('pct_10d'))}"
         )
 
-    lines += ["", "🔴 賣超 Top 5（含 5日/10日股價趨勢）"]
+    lines += ["", f"🔴 賣超 Top {TOP_N_FLOW}（含 5日/10日股價趨勢）"]
     if not top_sells:
         lines.append("（無超過門檻的賣超股票）")
-    for s in top_sells[:5]:
+    for s in top_sells[:TOP_N_FLOW]:
         t = trends.get(s["stock_id"], {})
         lines.append(
             f"- {s['stock_id']} {s['name']}  賣超 NT${s['value_twd']:,.0f}  "
@@ -300,33 +303,10 @@ def build_overview_message(top_buys: list, top_sells: list, trends: dict, report
 
     lines += [
         "",
-        f"（完整名單：買超 {len(top_buys)} 檔／賣超 {len(top_sells)} 檔，詳見後續訊息）",
+        f"（共 {len(top_buys)} 檔買超／{len(top_sells)} 檔賣超超過門檻，僅顯示 Top {TOP_N_FLOW}）",
         "⚡ 以上為參考訊號，請自行判斷進出場",
     ]
     return "\n".join(lines)
-
-
-def build_flow_list_messages(stocks: list, direction_label: str, emoji: str,
-                              report_date: str, batch_size: int = 40) -> list:
-    """全部買超或全部賣超的完整清單，切成多則訊息避免超過 4096 字元上限。"""
-    if not stocks:
-        return []
-
-    batches = [stocks[i:i + batch_size] for i in range(0, len(stocks), batch_size)]
-    total = len(batches)
-
-    messages = []
-    for i, batch in enumerate(batches, 1):
-        page = f"（第 {i}/{total} 則）" if total > 1 else ""
-        lines = [f"{emoji} 三大法人{direction_label}完整名單（{report_date}）{page}", ""]
-        for s in batch:
-            lines.append(
-                f"- {s['stock_id']} {s['name']}  "
-                f"{direction_label} {abs(s['net_shares']) / 1000:,.0f} 張  "
-                f"約 NT${s['value_twd']:,.0f}"
-            )
-        messages.append("\n".join(lines))
-    return messages
 
 
 # ── 讀取 watchlist ─────────────────────────────────────────
@@ -499,22 +479,16 @@ def main():
     if flow_date and flow_date == last_sent_date:
         print(f"📭 {flow_date} 的總覽今天已經發送過，不重複發送")
     elif flow_date and (buys or sells):
-        top_ids = [s["stock_id"] for s in (buys[:5] + sells[:5])]
+        top_ids = [s["stock_id"] for s in (buys[:TOP_N_FLOW] + sells[:TOP_N_FLOW])]
         trends = compute_price_trends(top_ids)
 
-        messages = [build_overview_message(buys, sells, trends, flow_date)]
-        messages += build_flow_list_messages(buys, "買超", "🟢", flow_date)
-        messages += build_flow_list_messages(sells, "賣超", "🔴", flow_date)
+        msg = build_overview_message(buys, sells, trends, flow_date)
 
-        all_ok = True
-        for msg in messages:
-            if not send(msg):
-                all_ok = False
-                print("❌ 買賣超總覽發送失敗（部分訊息）")
-
-        if all_ok:
+        if send(msg):
             save_flow_alerted_date(flow_date)
-            print(f"✅ 已發送買賣超總覽（{len(messages)} 則訊息）")
+            print("✅ 已發送買賣超總覽")
+        else:
+            print("❌ 買賣超總覽發送失敗")
 
     watchlist = load_watchlist()
     if not watchlist:
