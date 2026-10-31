@@ -30,6 +30,15 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# YouTube 會封鎖 GitHub Actions 的機房 IP，透過 Webshare 住宅代理繞過
+WEBSHARE_PROXY_USERNAME = os.getenv("WEBSHARE_PROXY_USERNAME")
+WEBSHARE_PROXY_PASSWORD = os.getenv("WEBSHARE_PROXY_PASSWORD")
+YT_DLP_PROXY_ARGS = (
+    ["--proxy", f"http://{WEBSHARE_PROXY_USERNAME}-rotate:{WEBSHARE_PROXY_PASSWORD}@p.webshare.io:80"]
+    if WEBSHARE_PROXY_USERNAME and WEBSHARE_PROXY_PASSWORD else []
+)
+# yt-dlp 被 YouTube 判定為機器人時的錯誤訊息片段
+YT_BOT_CHECK_MARKERS = ("not a bot", "cookies-from-browser", "--cookies for the authentication")
 
 SEEN_PATH = os.path.join(BASE_DIR, "youtube_seen.json")
 MAX_FAILURES = 3          # 同一支影片失敗超過這個次數就放棄，不再重試
@@ -108,15 +117,23 @@ def fetch_latest_videos(channel_id):
 # ---------- 逐字稿：字幕優先，Whisper 備援 ----------
 
 def get_transcript_native(video_id):
+    """回傳 (逐字稿, 是否被 YouTube 封鎖)。"""
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-        api = YouTubeTranscriptApi()
+        from youtube_transcript_api.proxies import WebshareProxyConfig
+        proxy_config = None
+        if WEBSHARE_PROXY_USERNAME and WEBSHARE_PROXY_PASSWORD:
+            proxy_config = WebshareProxyConfig(
+                proxy_username=WEBSHARE_PROXY_USERNAME,
+                proxy_password=WEBSHARE_PROXY_PASSWORD,
+            )
+        api = YouTubeTranscriptApi(proxy_config=proxy_config)
         fetched = api.fetch(video_id, languages=TRANSCRIPT_LANGS)
         text = " ".join(s.text for s in fetched.snippets).strip()
-        return text if text else None
+        return (text if text else None), False
     except Exception as e:
         print(f"  字幕抓取失敗（{type(e).__name__}），改用 Whisper 備援")
-        return None
+        return None, type(e).__name__ in ("RequestBlocked", "IpBlocked")
 
 
 def is_live_or_upcoming(video_id):
@@ -124,7 +141,7 @@ def is_live_or_upcoming(video_id):
     url = f"https://www.youtube.com/watch?v={video_id}"
     try:
         result = subprocess.run(
-            ["yt-dlp", "--no-warnings", "--print", "live_status", url],
+            ["yt-dlp", "--no-warnings", *YT_DLP_PROXY_ARGS, "--print", "live_status", url],
             capture_output=True, text=True, timeout=60,
         )
         status = result.stdout.strip()
@@ -134,8 +151,10 @@ def is_live_or_upcoming(video_id):
 
 
 def download_audio(video_id, out_dir):
+    """回傳 (mp3 路徑, 是否每次都被 YouTube 判定為機器人)。"""
     url = f"https://www.youtube.com/watch?v={video_id}"
     out_template = os.path.join(out_dir, "%(id)s.%(ext)s")
+    all_bot_checked = True
 
     for extra_args in YT_DLP_RETRY_ARGS:
         cmd = [
@@ -145,6 +164,7 @@ def download_audio(video_id, out_dir):
             "--audio-format", "mp3",
             "--audio-quality", "9",
             "-o", out_template,
+            *YT_DLP_PROXY_ARGS,
             *extra_args,
             url,
         ]
@@ -152,16 +172,19 @@ def download_audio(video_id, out_dir):
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         except subprocess.TimeoutExpired:
             print(f"  yt-dlp 逾時（args={extra_args}）")
+            all_bot_checked = False
             continue
 
         mp3_path = os.path.join(out_dir, f"{video_id}.mp3")
         if result.returncode == 0 and os.path.exists(mp3_path):
-            return mp3_path
+            return mp3_path, False
 
+        if not any(m in result.stderr for m in YT_BOT_CHECK_MARKERS):
+            all_bot_checked = False
         print(f"  yt-dlp 失敗（args={extra_args}）：{result.stderr.strip()[-300:]}")
         time.sleep(2)
 
-    return None
+    return None, all_bot_checked
 
 
 def split_audio(mp3_path, out_dir, chunk_seconds=600):
@@ -228,20 +251,21 @@ def transcribe_with_whisper(mp3_path, out_dir):
 
 
 def get_transcript(video_id, out_dir):
-    text = get_transcript_native(video_id)
+    """回傳 (逐字稿, 是否被 YouTube 封鎖)。字幕跟音訊下載都被封鎖時才算封鎖。"""
+    text, native_blocked = get_transcript_native(video_id)
     if text:
         print("  ✅ 使用原生字幕")
-        return text
+        return text, False
 
-    mp3_path = download_audio(video_id, out_dir)
+    mp3_path, download_blocked = download_audio(video_id, out_dir)
     if not mp3_path:
         print("  ❌ 音訊下載失敗")
-        return None
+        return None, native_blocked and download_blocked
 
     text = transcribe_with_whisper(mp3_path, out_dir)
     if text:
         print("  ✅ 使用 Whisper 備援轉錄")
-    return text
+    return text, False
 
 
 # ---------- Claude 摘要／分析／建議 ----------
@@ -330,9 +354,14 @@ def process_video(state, channel_id, channel_name, video):
 
     tmp_dir = tempfile.mkdtemp(prefix=f"ytw_{video_id}_")
     try:
-        transcript = get_transcript(video_id, tmp_dir)
+        transcript, blocked = get_transcript(video_id, tmp_dir)
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    if not transcript and blocked:
+        # 封鎖是 IP 的問題、不是影片的問題，不計入失敗次數，避免影片被誤放棄
+        print("  🚫 被 YouTube 封鎖（機器人驗證），不計失敗次數，下次排程再試")
+        return
 
     if not transcript:
         print("  ❌ 無法取得逐字稿，稍後重試")
