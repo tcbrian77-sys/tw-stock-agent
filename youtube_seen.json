@@ -24,10 +24,11 @@
       "WlFaW02XXL8",
       "2kW094qpMVw",
       "cvwOJd_WEQM",
-      "40ZC_BVca9o"
+      "40ZC_BVca9o",
+      "gHnvd6UT-ng"
     ],
     "failed": {
-      "gHnvd6UT-ng": 2
+      "a78LowBaBFc": 1
     }
   },
   "UCuXjCbU_zwwuE0rMbJfY9aQ": {
@@ -51,7 +52,9 @@
       "M-eOWYq08wY",
       "PpllCKRaJ2s"
     ],
-    "failed": {}
+    "failed": {
+      "Hxw-Mn0ubkU": 1
+    }
   },
   "UCQvsuaih5lE0n_Ne54nNezg": {
     "seen": [
@@ -87,7 +90,14 @@
       "VZvznx5RcGA"
     ],
     "failed": {
-      "9bbfSqj2dY8": 2
+      "9bbfSqj2dY8": 2,
+      "2KJqxmK94UU": 1,
+      "_FtZncSN7LY": 1,
+      "pX5YjESSiac": 1,
+      "GsU7dwp11Ms": 1,
+      "Ei24qUM4878": 1,
+      "XN1Cav_BSWI": 1,
+      "Z1iQ8M-qnVA": 1
     }
   }
 }
