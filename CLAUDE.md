@@ -3,6 +3,13 @@
 > [!info] 2026-10-28 更新：系統已完全遷移到雲端自動化，且新增 YouTuber 監控功能。
 > 完整架構、cron-job.org job 清單、機密復原方式，見 Obsidian 筆記「台股監控 Agent (tw-stock-agent)」。本檔案保留原始設計細節（scan.py 三層過濾邏輯等）並更新成目前實際狀態。
 
+> [!warning] 2026-11-01：`youtube_watch.py` 改在本機 Mac 用 launchd 執行（YouTube 封鎖雲端機房 IP）
+> - `run_youtube_watch_local.sh` + `com.brian.tw-stock-agent.youtube-watch.plist`（已複製到 `~/Library/LaunchAgents/`），每 20 分鐘，log 在 `logs/youtube_watch.log`
+> - 雲端 `youtube_watch.yml` 已 disable；**不要重新啟用**，否則會跟本機版重複發送
+> - yt-dlp 用 Homebrew 版，過舊會 403 → `brew upgrade yt-dlp`
+> - 程式碼保留 Webshare 住宅代理支援（`WEBSHARE_PROXY_USERNAME`/`PASSWORD`），被封鎖時不計失敗次數
+> - repo 已於 2026-11-01 改為 public（Actions 分鐘數用完），不要 commit 任何金鑰
+
 ## 專案目標
 
 兩個功能，共用同一套雲端自動化基礎設施，訊號觸發時發 Telegram 到同一個共用群組（含老婆）：
@@ -155,6 +162,7 @@ tw-stock-agent/
   - [x] 直播預告/進行中自動跳過，等結束再處理
   - [x] Claude（`claude-sonnet-5`）產生中文摘要／分析／建議，發送 Telegram
   - [x] cron-job.org 排程：全天每 20 分鐘觸發一次
+  - [x] 2026-11-01：雲端版從未成功（YouTube 封鎖機房 IP）→ 改本機 launchd 執行
 
 🎉 系統目前完全雲端自動運行，不依賴本機電腦或任何終端機。
 
