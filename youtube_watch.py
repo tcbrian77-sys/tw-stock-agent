@@ -314,7 +314,11 @@ def summarize_with_claude(channel_name, title, published, link, transcript):
             print(f"  ❌ Anthropic API 錯誤：{resp.status_code} {resp.text[:300]}")
             return None
         data = resp.json()
-        return "".join(block.get("text", "") for block in data.get("content", []))
+        text = "".join(block.get("text", "") for block in data.get("content", []))
+        if not text.strip():
+            block_types = [block.get("type") for block in data.get("content", [])]
+            print(f"  ❌ Claude 回傳空白內容：stop_reason={data.get('stop_reason')} blocks={block_types}")
+        return text
     except requests.exceptions.RequestException as e:
         print(f"  ❌ Anthropic 請求失敗：{e}")
         return None
