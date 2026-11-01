@@ -10,6 +10,13 @@ echo "===== $(date '+%Y-%m-%d %H:%M:%S') ====="
 
 git pull --rebase --autostash -q || echo "⚠️  git pull 失敗，用本機現有狀態繼續"
 
+# yt-dlp 過舊會被 YouTube 回 403，每 7 天自動升級一次
+STAMP=logs/.yt-dlp-upgraded
+if [[ ! -f $STAMP || -n $(find $STAMP -mtime +7) ]]; then
+  brew upgrade yt-dlp >/dev/null 2>&1 ; echo "🔄 yt-dlp 版本：$(yt-dlp --version)"
+  touch $STAMP
+fi
+
 /usr/bin/python3 youtube_watch.py
 
 git add youtube_seen.json
