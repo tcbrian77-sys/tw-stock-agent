@@ -344,3 +344,51 @@ def fetch_per_today() -> pd.DataFrame:
         })
 
     return pd.DataFrame(rows)
+
+
+# ═══════════════════════════════════════════════════════════════
+# 月營收（取代 FinMind TaiwanStockMonthRevenue）
+# ═══════════════════════════════════════════════════════════════
+
+def _revenue_rows(item: dict) -> list:
+    """一筆 TWSE/TPEx 月營收彙總 → 當月 + 上月兩筆 FinMind 格式資料。
+    資料年月是民國 YYYMM（例如 11509 = 2026 年 9 月），營收單位是仟元。
+    同時輸出「上月營收」，萬一漏跑一個月也能補上。"""
+    ym = str(item.get("資料年月", ""))
+    if len(ym) < 4:
+        return []
+    year, month = int(ym[:-2]) + 1911, int(ym[-2:])
+    prev_year, prev_month = (year, month - 1) if month > 1 else (year - 1, 12)
+    roc_out = str(item.get("出表日期", ""))
+    create_time = (f"{int(roc_out[:-4]) + 1911}-{roc_out[-4:-2]}-{roc_out[-2:]}"
+                   if len(roc_out) >= 7 else "")
+
+    rows = []
+    for y, m, field in ((year, month, "營業收入-當月營收"),
+                        (prev_year, prev_month, "營業收入-上月營收")):
+        revenue = _to_float(item.get(field)) * 1000
+        if revenue <= 0:
+            continue
+        # FinMind 的 date = 營收月份的下個月 1 日（公告月份）
+        ann_y, ann_m = (y, m + 1) if m < 12 else (y + 1, 1)
+        rows.append({
+            "date": f"{ann_y}-{ann_m:02d}-01",
+            "stock_id": str(item.get("公司代號", "")).strip(),
+            "country": "Taiwan",
+            "revenue": int(revenue),
+            "revenue_month": m,
+            "revenue_year": y,
+            "create_time": create_time,
+        })
+    return rows
+
+
+def fetch_month_revenue_latest() -> pd.DataFrame:
+    """上市（TWSE）＋上櫃（TPEx）最新一期月營收，全市場各一次呼叫。
+    官方只提供最新一期（通常在次月 10–17 日間更新），沒有歷史查詢。"""
+    rows = []
+    for url in (f"{TWSE_OPENAPI}/opendata/t187ap05_L",
+                f"{TPEX_OPENAPI}/mopsfin_t187ap05_O"):
+        for item in _get(url):
+            rows.extend(_revenue_rows(item))
+    return pd.DataFrame(rows)

@@ -15,20 +15,17 @@ import pandas as pd
 from datetime import date
 from dotenv import load_dotenv
 from notify import send
-from finmind_fallback import is_level_error, load_stock_universe, fetch_dataset_per_stock
+from twse_source import fetch_month_revenue_latest
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
-TOKEN = os.getenv("FINMIND_TOKEN")
 
 BASE_DIR     = os.path.dirname(__file__)
 PRICES_DIR   = os.path.join(BASE_DIR, "data", "prices")
 DATA_DIR     = os.path.join(BASE_DIR, "data")
 WATCHLIST_PATH = os.path.join(BASE_DIR, "watchlist_conditions.json")
-API_URL      = "https://api.finmindtrade.com/api/v4/data"
 
 MIN_DAYS          = 20    # 技術指標最少需要幾個交易日
 HISTORY_DAYS      = 60    # 讀取最近幾個交易日 CSV
-REVENUE_START     = "2019-01-01"  # 7 年歷史，足以確認「歷史新高」且初次下載約 90 次 API 呼叫
 MIN_REVENUE_MONTHS = 24   # 歷史資料不足 24 個月直接跳過
 
 
@@ -40,95 +37,48 @@ def _fundamental_cache_path() -> str:
     return os.path.join(DATA_DIR, f"fundamental_filter_{date.today().strftime('%Y%m')}.csv")
 
 
-def _revenue_month_dates() -> list:
-    """從 REVENUE_START 到本月，產生每個月份的公告日（每月 1 日）清單。
-    FinMind 月營收的 date 欄位 = 公告月份的第一天（例如 12 月營收 → date 2026-01-01）。
-    """
-    parts = [int(x) for x in REVENUE_START.split("-")]
-    cur = date(parts[0], parts[1], 1)
-    end = date.today().replace(day=1)
-    result = []
-    while cur <= end:
-        result.append(cur.strftime("%Y-%m-%d"))
-        m = cur.month + 1
-        y = cur.year + (1 if m > 12 else 0)
-        m = m if m <= 12 else 1
-        cur = date(y, m, 1)
-    return result
-
-
-def _fetch_revenue_from_api() -> pd.DataFrame:
-    """逐月向 FinMind 抓全市場月營收。
-    API 在不帶 stock_id 時只回傳指定 start_date 當月截面，
-    因此必須逐月呼叫（每次約 2,000 筆，一次呼叫 2-3 秒）。
-    帳號若已降級（免費/register 等級），全市場批次查詢會被拒絕，
-    此時改為逐檔查詢：單檔查詢只帶 start_date（不帶 end_date）會一次回傳
-    該股從 start_date 到最新的「全部」月份，因此只需每檔查詢一次。
-    """
-    months = _revenue_month_dates()
-    print(f"📡 逐月下載月營收（{REVENUE_START} 起，共 {len(months)} 個月）...")
-    all_dfs = []
-
-    for i, m_date in enumerate(months):
-        print(f"\r  進度：{i+1}/{len(months)}  ({m_date})", end="", flush=True)
-        try:
-            r = requests.get(API_URL, params={
-                "dataset": "TaiwanStockMonthRevenue",
-                "start_date": m_date,
-                "token": TOKEN,
-            }, timeout=60)
-            payload = r.json()
-        except requests.RequestException as e:
-            print(f"\n⚠️  {m_date} 請求失敗：{e}，跳過")
-            continue
-
-        if is_level_error(payload):
-            print(f"\n⚠️  帳號等級不足，無法使用全市場批次查詢（第 {i+1} 個月即遭拒絕）。")
-            print("   改為逐檔查詢完整歷史（每檔一次呼叫即可拿到全部月份，約需數小時）...")
-            stock_ids = load_stock_universe()
-            df = fetch_dataset_per_stock(
-                "TaiwanStockMonthRevenue", TOKEN, stock_ids,
-                start_date=REVENUE_START, label="月營收",
-            )
-            if df.empty:
-                print("❌ 無法從 FinMind 取得任何月營收資料")
-                sys.exit(1)
-            unique_dates = df["date"].nunique() if "date" in df.columns else "?"
-            print(f"✅ 下載完成：{len(df):,} 筆，{df['stock_id'].nunique():,} 檔，{unique_dates} 個月份")
-            return df
-
-        if r.status_code != 200 or payload.get("msg") != "success":
-            # 未來月份可能回傳 empty，正常跳過
-            continue
-
-        rows = payload.get("data", [])
-        if rows:
-            all_dfs.append(pd.DataFrame(rows))
-
-    print()  # 換行
-
-    if not all_dfs:
-        print("❌ 無法從 FinMind 取得任何月營收資料")
-        sys.exit(1)
-
-    df = pd.concat(all_dfs, ignore_index=True)
-    unique_dates = df["date"].nunique() if "date" in df.columns else "?"
-    print(f"✅ 下載完成：{len(df):,} 筆，{df['stock_id'].nunique():,} 檔，{unique_dates} 個月份")
-    return df
+def _latest_existing_cache() -> str:
+    """本月快取優先，否則用最近一個月的快取當歷史底稿。"""
+    caches = sorted(glob.glob(os.path.join(DATA_DIR, "fundamental_filter_*.csv")))
+    return caches[-1] if caches else ""
 
 
 def _load_revenue() -> pd.DataFrame:
-    cache = _fundamental_cache_path()
-    if os.path.exists(cache):
-        print(f"📂 讀取月營收快取：{os.path.basename(cache)}")
-        df = pd.read_csv(cache, dtype={"stock_id": str})
-        print(f"   {len(df):,} 筆，{df['stock_id'].nunique():,} 檔股票")
-        return df
+    """月營收歷史 = 既有快取（歷史底稿）＋ TWSE/TPEx 最新一期。
+    官方開放資料只有最新一期，所以歷史完全靠快取延續；每次執行都補抓最新一期
+    （上市、上櫃各一次呼叫），新月份公布後當天就會併入，不必等到下個月。"""
+    base_path = _latest_existing_cache()
+    if not base_path:
+        print("❌ 找不到任何月營收快取（data/fundamental_filter_*.csv），無法建立歷史資料")
+        sys.exit(1)
 
-    df = _fetch_revenue_from_api()
-    os.makedirs(DATA_DIR, exist_ok=True)
-    df.to_csv(cache, index=False)
-    print(f"💾 已快取至 {os.path.basename(cache)}")
+    print(f"📂 讀取月營收快取：{os.path.basename(base_path)}")
+    df = pd.read_csv(base_path, dtype={"stock_id": str})
+
+    try:
+        latest = fetch_month_revenue_latest()
+    except requests.RequestException as e:
+        print(f"⚠️  TWSE/TPEx 月營收抓取失敗：{e}，沿用快取資料")
+        latest = pd.DataFrame()
+
+    if not latest.empty:
+        have = set(zip(df["stock_id"], df["revenue_year"], df["revenue_month"]))
+        new_rows = latest[[
+            (s, y, m) not in have
+            for s, y, m in zip(latest["stock_id"], latest["revenue_year"], latest["revenue_month"])
+        ]]
+        if not new_rows.empty:
+            periods = sorted({f"{y}/{m:02d}" for y, m in zip(new_rows["revenue_year"], new_rows["revenue_month"])})
+            print(f"📡 TWSE/TPEx 新增 {len(new_rows):,} 筆月營收（{', '.join(periods)}）")
+            df = pd.concat([df, new_rows], ignore_index=True)
+        else:
+            print("📡 TWSE/TPEx 最新一期月營收已在快取中，無新資料")
+
+    cache = _fundamental_cache_path()
+    if cache != base_path or not latest.empty:
+        df.to_csv(cache, index=False)
+        print(f"💾 已更新快取 {os.path.basename(cache)}")
+    print(f"   {len(df):,} 筆，{df['stock_id'].nunique():,} 檔股票")
     return df
 
 
