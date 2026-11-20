@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-18",
+  "date": "2026-11-19",
   "signals": [
     {
       "stock_id": "2327",
       "strategy": "超賣反彈",
-      "close": 352.0,
+      "close": 322.5,
       "vol_ratio": 1.2,
-      "rsi": 18.2,
-      "pct_change": -2.49,
+      "rsi": 18.9,
+      "pct_change": -8.38,
       "revenue": 17597421000,
       "yoy": 55.01,
       "revenue_all_time_high": true
@@ -15,10 +15,10 @@
     {
       "stock_id": "2351",
       "strategy": "超賣反彈",
-      "close": 129.0,
-      "vol_ratio": 1.1,
-      "rsi": 22.4,
-      "pct_change": 1.18,
+      "close": 116.5,
+      "vol_ratio": 0.9,
+      "rsi": 22.5,
+      "pct_change": -9.69,
       "revenue": 1432547000,
       "yoy": 80.94,
       "revenue_all_time_high": true
@@ -26,10 +26,10 @@
     {
       "stock_id": "2376",
       "strategy": "超賣反彈",
-      "close": 276.5,
-      "vol_ratio": 0.7,
-      "rsi": 17.2,
-      "pct_change": 0.73,
+      "close": 260.0,
+      "vol_ratio": 0.8,
+      "rsi": 15.8,
+      "pct_change": -5.97,
       "revenue": 67036128000,
       "yoy": 136.72,
       "revenue_all_time_high": true
@@ -37,10 +37,10 @@
     {
       "stock_id": "2383",
       "strategy": "超賣反彈",
-      "close": 3465.0,
-      "vol_ratio": 1.4,
-      "rsi": 28.0,
-      "pct_change": -2.12,
+      "close": 3120.0,
+      "vol_ratio": 0.8,
+      "rsi": 27.9,
+      "pct_change": -9.96,
       "revenue": 24472758000,
       "yoy": 203.08,
       "revenue_all_time_high": true
@@ -48,10 +48,10 @@
     {
       "stock_id": "2472",
       "strategy": "超賣反彈",
-      "close": 144.5,
-      "vol_ratio": 1.1,
-      "rsi": 26.7,
-      "pct_change": -1.03,
+      "close": 130.5,
+      "vol_ratio": 1.2,
+      "rsi": 26.5,
+      "pct_change": -9.69,
       "revenue": 1379329000,
       "yoy": 60.62,
       "revenue_all_time_high": true
@@ -59,10 +59,10 @@
     {
       "stock_id": "2486",
       "strategy": "超賣反彈",
-      "close": 141.0,
-      "vol_ratio": 1.8,
-      "rsi": 27.8,
-      "pct_change": -1.4,
+      "close": 127.0,
+      "vol_ratio": 1.1,
+      "rsi": 26.7,
+      "pct_change": -9.93,
       "revenue": 848321000,
       "yoy": 67.86,
       "revenue_all_time_high": true
@@ -70,10 +70,10 @@
     {
       "stock_id": "3037",
       "strategy": "超賣反彈",
-      "close": 662.0,
-      "vol_ratio": 1.5,
-      "rsi": 23.7,
-      "pct_change": 3.92,
+      "close": 596.0,
+      "vol_ratio": 0.6,
+      "rsi": 23.2,
+      "pct_change": -9.97,
       "revenue": 18986087000,
       "yoy": 67.62,
       "revenue_all_time_high": true
@@ -81,10 +81,10 @@
     {
       "stock_id": "3563",
       "strategy": "超賣反彈",
-      "close": 537.0,
-      "vol_ratio": 0.9,
-      "rsi": 28.0,
-      "pct_change": 0.37,
+      "close": 490.5,
+      "vol_ratio": 1.9,
+      "rsi": 26.3,
+      "pct_change": -8.66,
       "revenue": 403332000,
       "yoy": 95.59,
       "revenue_all_time_high": true
@@ -92,10 +92,10 @@
     {
       "stock_id": "3583",
       "strategy": "超賣反彈",
-      "close": 438.0,
-      "vol_ratio": 1.4,
-      "rsi": 28.4,
-      "pct_change": 3.55,
+      "close": 394.5,
+      "vol_ratio": 0.9,
+      "rsi": 27.6,
+      "pct_change": -9.93,
       "revenue": 1101175000,
       "yoy": 25.55,
       "revenue_all_time_high": true
@@ -103,10 +103,10 @@
     {
       "stock_id": "3675",
       "strategy": "超賣反彈",
-      "close": 206.0,
-      "vol_ratio": 1.2,
-      "rsi": 27.3,
-      "pct_change": 1.48,
+      "close": 186.0,
+      "vol_ratio": 1.4,
+      "rsi": 26.2,
+      "pct_change": -9.71,
       "revenue": 318744000,
       "yoy": 36.75,
       "revenue_all_time_high": true
@@ -114,10 +114,10 @@
     {
       "stock_id": "5274",
       "strategy": "超賣反彈",
-      "close": 9700.0,
-      "vol_ratio": 1.5,
+      "close": 8730.0,
+      "vol_ratio": 0.7,
       "rsi": 12.6,
-      "pct_change": -1.77,
+      "pct_change": -10.0,
       "revenue": 2029553000,
       "yoy": 177.78,
       "revenue_all_time_high": true
@@ -125,21 +125,32 @@
     {
       "stock_id": "5309",
       "strategy": "超賣反彈",
-      "close": 46.2,
-      "vol_ratio": 0.8,
-      "rsi": 21.9,
-      "pct_change": -0.11,
+      "close": 41.6,
+      "vol_ratio": 1.2,
+      "rsi": 22.7,
+      "pct_change": -9.96,
       "revenue": 384178000,
       "yoy": 43.18,
       "revenue_all_time_high": true
     },
     {
+      "stock_id": "5434",
+      "strategy": "超賣反彈",
+      "close": 432.5,
+      "vol_ratio": 1.2,
+      "rsi": 25.9,
+      "pct_change": -8.66,
+      "revenue": 8186464000,
+      "yoy": 61.18,
+      "revenue_all_time_high": true
+    },
+    {
       "stock_id": "6213",
       "strategy": "超賣反彈",
-      "close": 438.5,
-      "vol_ratio": 1.1,
-      "rsi": 21.6,
-      "pct_change": 1.5,
+      "close": 395.0,
+      "vol_ratio": 0.6,
+      "rsi": 22.2,
+      "pct_change": -9.92,
       "revenue": 6035899000,
       "yoy": 119.53,
       "revenue_all_time_high": true
@@ -147,10 +158,10 @@
     {
       "stock_id": "6531",
       "strategy": "超賣反彈",
-      "close": 595.0,
-      "vol_ratio": 1.1,
-      "rsi": 29.1,
-      "pct_change": -1.0,
+      "close": 536.0,
+      "vol_ratio": 0.8,
+      "rsi": 29.4,
+      "pct_change": -9.92,
       "revenue": 1298850000,
       "yoy": 155.86,
       "revenue_all_time_high": true
@@ -158,10 +169,10 @@
     {
       "stock_id": "6770",
       "strategy": "超賣反彈",
-      "close": 51.9,
-      "vol_ratio": 1.0,
-      "rsi": 23.2,
-      "pct_change": 0.78,
+      "close": 48.9,
+      "vol_ratio": 1.3,
+      "rsi": 23.1,
+      "pct_change": -5.78,
       "revenue": 8027766000,
       "yoy": 94.19,
       "revenue_all_time_high": true
@@ -169,23 +180,12 @@
     {
       "stock_id": "8046",
       "strategy": "超賣反彈",
-      "close": 775.0,
-      "vol_ratio": 1.9,
-      "rsi": 24.0,
-      "pct_change": -2.15,
+      "close": 698.0,
+      "vol_ratio": 0.6,
+      "rsi": 23.6,
+      "pct_change": -9.94,
       "revenue": 6288839000,
       "yoy": 69.67,
-      "revenue_all_time_high": true
-    },
-    {
-      "stock_id": "8415",
-      "strategy": "布林突破",
-      "close": 41.6,
-      "vol_ratio": 2.0,
-      "rsi": 71.4,
-      "pct_change": 0.6,
-      "revenue": 3049008000,
-      "yoy": 43.83,
       "revenue_all_time_high": true
     }
   ],
