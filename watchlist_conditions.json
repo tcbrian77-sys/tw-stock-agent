@@ -1,9 +1,32 @@
 {
-  "date": "2026-11-24",
-  "signals": [],
+  "date": "2026-11-25",
+  "signals": [
+    {
+      "stock_id": "5274",
+      "strategy": "超賣反彈",
+      "close": 8795.0,
+      "vol_ratio": 1.7,
+      "rsi": 28.3,
+      "pct_change": -3.77,
+      "revenue": 2029553000,
+      "yoy": 177.78,
+      "revenue_all_time_high": true
+    },
+    {
+      "stock_id": "5309",
+      "strategy": "超賣反彈",
+      "close": 37.8,
+      "vol_ratio": 0.8,
+      "rsi": 25.8,
+      "pct_change": -9.13,
+      "revenue": 384178000,
+      "yoy": 43.18,
+      "revenue_all_time_high": true
+    }
+  ],
   "summary": {
     "fundamental_pass": 83,
     "volume_top50": 50,
-    "final_signals": 0
+    "final_signals": 2
   }
 }
